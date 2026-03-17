@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Play, Eye, ListVideo } from 'lucide-react';
 import { Drama } from '../types';
+import HeicImage from './HeicImage';
 
 interface DramaCardProps {
   drama: Drama;
@@ -16,8 +17,8 @@ export default function DramaCard({ drama, index }: DramaCardProps) {
       className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl bg-zinc-900/50 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-amber-500/10"
     >
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-800">
-        <img
-          src={drama.image}
+        <HeicImage
+          src={drama.cover}
           alt={drama.title}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
           loading="lazy"
@@ -36,10 +37,10 @@ export default function DramaCard({ drama, index }: DramaCardProps) {
 
         {/* Badges */}
         <div className="absolute left-3 top-3 flex gap-2">
-          {drama.episodes && (
+          {drama.total_chapters && (
             <div className="flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-xs font-medium text-amber-400 backdrop-blur-md">
               <ListVideo size={12} />
-              <span>{drama.episodes}</span>
+              <span>{drama.total_chapters} Ep</span>
             </div>
           )}
         </div>
@@ -53,7 +54,7 @@ export default function DramaCard({ drama, index }: DramaCardProps) {
         <div className="mt-3 flex items-center justify-between text-xs text-zinc-400">
           <div className="flex items-center gap-1">
             <Eye size={14} />
-            <span>{drama.views || 'N/A'}</span>
+            <span>{drama.status || 'N/A'}</span>
           </div>
           <button className="rounded-full bg-zinc-800 px-3 py-1.5 font-medium text-white transition-colors hover:bg-amber-500 hover:text-white">
             Tonton

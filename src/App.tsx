@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { Film } from 'lucide-react';
+import { Toaster } from 'react-hot-toast';
 import ApiKeyModal from './components/ApiKeyModal';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -32,6 +33,13 @@ export default function App() {
   return (
     <Router>
       <div className="min-h-screen bg-black text-zinc-100 selection:bg-amber-500/30">
+        <Toaster position="top-center" toastOptions={{
+          style: {
+            background: '#18181b',
+            color: '#fff',
+            border: '1px solid #27272a',
+          },
+        }} />
         <AnimatePresence>
           {!apiKey && <ApiKeyModal onSave={handleSaveKey} />}
         </AnimatePresence>
@@ -42,7 +50,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home apiKey={apiKey} onLogout={handleLogout} />} />
             <Route path="/detail/:bookId" element={<Detail apiKey={apiKey} />} />
-            <Route path="/play/:bookId/:episode" element={<Player apiKey={apiKey} />} />
+            <Route path="/play/:bookId/:videoId" element={<Player apiKey={apiKey} />} />
           </Routes>
         )}
 

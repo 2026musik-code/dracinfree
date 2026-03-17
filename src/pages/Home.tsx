@@ -20,14 +20,14 @@ export default function Home({ apiKey, onLogout }: HomeProps) {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`https://api.ferdev.my.id/internet/dramabox/home?apikey=${apiKey}`);
+        const response = await fetch(`https://api.ferdev.my.id/internet/melolo/search?query=CEO&apikey=${apiKey}`);
         if (!response.ok) {
           throw new Error('Gagal mengambil data dari server');
         }
         const result: ApiResponse = await response.json();
         
-        if (result.success && result.data?.latest) {
-          setDramas(result.data.latest);
+        if (result.success && result.result) {
+          setDramas(result.result);
         } else {
           throw new Error('Format data tidak sesuai atau API Key salah');
         }
@@ -89,9 +89,7 @@ export default function Home({ apiKey, onLogout }: HomeProps) {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:gap-6">
           <AnimatePresence>
             {dramas.map((drama, index) => {
-              // Extract bookId from image URL
-              const match = drama.image.match(/\/(\d{10,})\//);
-              const bookId = match ? match[1] : null;
+              const bookId = drama.book_id;
 
               return (
                 <Link key={index} to={bookId ? `/detail/${bookId}` : '#'}>
