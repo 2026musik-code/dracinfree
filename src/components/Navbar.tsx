@@ -1,17 +1,18 @@
 import { Film, Search, Menu, User, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Navbar() {
   return (
     <nav className="sticky top-0 z-40 w-full border-b border-white/5 bg-black/80 backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-black shadow-lg shadow-amber-500/20">
             <Film size={24} strokeWidth={2.5} />
           </div>
           <span className="text-xl font-bold tracking-tight text-white">
             DRACIN<span className="text-amber-500">FREE</span>
           </span>
-        </div>
+        </Link>
 
         <div className="hidden flex-1 items-center justify-center px-8 md:flex">
           <div className="relative w-full max-w-md">

@@ -14,3 +14,41 @@ export interface ApiResponse {
     latest: Drama[];
   };
 }
+
+export interface Episode {
+  episode: number;
+  id: string;
+}
+
+export interface DramaDetail {
+  book_id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  upload_date: string;
+  stats: {
+    total_episodes: string;
+  };
+  episode_list: Episode[];
+}
+
+export interface DetailResponse {
+  success: boolean;
+  status: number;
+  author: string;
+  data: DramaDetail;
+}
+
+export interface StreamData {
+  book_id: string;
+  episode: string;
+  video_url: string;
+}
+
+export interface StreamResponse {
+  success: boolean;
+  status: number;
+  author: string;
+  data: StreamData;
+}
+
