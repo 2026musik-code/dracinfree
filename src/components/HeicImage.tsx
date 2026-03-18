@@ -4,6 +4,9 @@ import heic2any from 'heic2any';
 interface HeicImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   src: string;
   alt: string;
+  className?: string;
+  loading?: "eager" | "lazy";
+  referrerPolicy?: "no-referrer" | "no-referrer-when-downgrade" | "origin" | "origin-when-cross-origin" | "same-origin" | "strict-origin" | "strict-origin-when-cross-origin" | "unsafe-url";
 }
 
 export default function HeicImage({ src, alt, className, ...props }: HeicImageProps) {

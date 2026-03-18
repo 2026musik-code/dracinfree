@@ -10,7 +10,7 @@ export default function ApiKeyModal({ onSave }: ApiKeyModalProps) {
   const [key, setKey] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!key.trim()) {
       setError('API Key tidak boleh kosong');
