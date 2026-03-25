@@ -7,19 +7,30 @@ const BASE_API = 'https://api.sansekai.my.id/api';
 // Custom fetch to bypass WAF/403 blocks on Cloudflare Workers
 const fetchApi = async (url, proxyConfig = null) => {
     try {
-        if (proxyConfig) {
-            console.log(`Connecting via ${proxyConfig.protocol} proxy: ${proxyConfig.host}:${proxyConfig.port}`);
-            // In a real implementation, this would involve a complex VLESS/Trojan handshake over WebSocket.
-            // For now, we simulate the connection and use the proxy as a standard HTTP/HTTPS proxy if possible,
-            // or pass the config to be handled by a dedicated VLESS/Trojan library.
-            
+        let config = null;
+        if (typeof proxyConfig === 'string') {
+            // Parse VLESS/Trojan link
+            try {
+                const u = new URL(proxyConfig);
+                config = {
+                    protocol: u.protocol.replace(':', ''),
+                    uuid: u.username,
+                    host: u.hostname,
+                    port: u.port,
+                    path: u.pathname,
+                    sni: u.searchParams.get('sni')
+                };
+            } catch (e) {
+                console.error("Failed to parse proxy link", e);
+            }
+        } else {
+            config = proxyConfig;
+        }
+
+        if (config) {
+            console.log(`Connecting via ${config.protocol} proxy: ${config.host}:${config.port}`);
             // Placeholder for VLESS/Trojan handshake logic
-            const proxyUrl = `${proxyConfig.protocol === 'vless' ? 'vless' : 'trojan'}://${proxyConfig.uuid}@${proxyConfig.host}:${proxyConfig.port}${proxyConfig.path}?sni=${proxyConfig.sni}`;
-            console.log(`Tunnel established to ${proxyUrl}`);
-            
-            // For demonstration, we'll use a standard fetch with proxy headers if the proxy server supports it,
-            // or we would use a library like 'v2ray-worker' here.
-            // Since we don't have the library installed, we'll simulate success.
+            // ... (rest of the logic)
             return await fetch(url, {
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
@@ -143,31 +154,8 @@ app.get('/setup', (c) => {
             <form id="proxy-form" class="bg-slate-900/60 p-6 rounded-2xl border border-white/10 shadow-xl">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Protokol</label>
-                        <select id="protocol" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4">
-                            <option value="vless">VLESS</option>
-                            <option value="trojan">Trojan</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Host</label>
-                        <input type="text" id="host" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4" placeholder="Contoh: vps.server.com">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Port</label>
-                        <input type="number" id="port" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4" placeholder="443">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">UUID / Password</label>
-                        <input type="text" id="uuid" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4" placeholder="UUID atau Password">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Path</label>
-                        <input type="text" id="path" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4" placeholder="/vless">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">SNI</label>
-                        <input type="text" id="sni" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4" placeholder="domain.com">
+                        <label class="block text-sm font-medium text-slate-400 mb-1">VLESS/Trojan Link</label>
+                        <textarea id="proxy-link" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4 h-32" placeholder="vless://..."></textarea>
                     </div>
                 </div>
                 <button type="button" id="connect-btn" class="w-full mt-6 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl transition-all">Simpan & Hubungkan</button>
@@ -176,26 +164,16 @@ app.get('/setup', (c) => {
             <a href="/" id="drama-btn" class="w-full mt-4 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-center hidden transition-all">Buka Halaman Drama</a>
         </div>
         <script>
-            document.getElementById('connect-btn').addEventListener('click', async () => {
-                const config = {
-                    protocol: document.getElementById('protocol').value,
-                    host: document.getElementById('host').value,
-                    port: document.getElementById('port').value,
-                    uuid: document.getElementById('uuid').value,
-                    path: document.getElementById('path').value,
-                    sni: document.getElementById('sni').value
-                };
-                localStorage.setItem('proxyConfig', JSON.stringify(config));
+            document.getElementById('connect-btn').addEventListener('click', () => {
+                const link = document.getElementById('proxy-link').value;
+                localStorage.setItem('proxyLink', link);
+                document.cookie = "proxyConfig=" + encodeURIComponent(link) + "; path=/; max-age=86400";
                 
                 const logDiv = document.getElementById('log');
                 logDiv.classList.remove('hidden');
-                logDiv.innerHTML = 'Menghubungkan ke proxy...<br>';
+                logDiv.innerHTML = 'Menyimpan konfigurasi...<br>Link tersimpan: ' + link.substring(0, 30) + '...<br>';
                 
-                // Simulate connection test
-                setTimeout(() => {
-                    logDiv.innerHTML += 'Koneksi berhasil! Proxy siap digunakan.<br>';
-                    document.getElementById('drama-btn').classList.remove('hidden');
-                }, 1500);
+                document.getElementById('drama-btn').classList.remove('hidden');
             });
         </script>
     `;
