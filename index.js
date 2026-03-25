@@ -4,6 +4,26 @@ const app = new Hono();
 
 const BASE_API = 'https://api.sansekai.my.id/api';
 
+// Custom fetch to bypass WAF/403 blocks on Cloudflare Workers
+const fetchApi = async (url) => {
+    try {
+        const res = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'en-US,en;q=0.9,id;q=0.8',
+                'Referer': 'https://api.sansekai.my.id/',
+                'Origin': 'https://api.sansekai.my.id'
+            }
+        });
+        if (res.ok) return res;
+        throw new Error(`Primary fetch failed with status: ${res.status}`);
+    } catch (e) {
+        console.warn('Primary fetch failed, using proxy fallback:', e.message);
+        return await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url));
+    }
+};
+
 // HTML Layout Template
 const Layout = (title, content) => `
 <!DOCTYPE html>
@@ -74,7 +94,7 @@ app.get('/api/explore', async (c) => {
     
     try {
         const keyword = keywords[(page - 1) % keywords.length];
-        const res = await fetch(`${BASE_API}/dramabox/search?query=${keyword}`);
+        const res = await fetchApi(`${BASE_API}/dramabox/search?query=${keyword}`);
         if (!res.ok) return c.json([]);
         
         const data = await res.json();
@@ -133,7 +153,7 @@ app.get('/', async (c) => {
             isSearch = true;
         }
 
-        const res = await fetch(apiUrl);
+        const res = await fetchApi(apiUrl);
         if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
         
         let dramas = await res.json();
@@ -301,7 +321,7 @@ app.get('/drama/:id', async (c) => {
 
     try {
         // Fetch Episodes
-        const res = await fetch(`${BASE_API}/dramabox/allepisode?bookId=${id}`);
+        const res = await fetchApi(`${BASE_API}/dramabox/allepisode?bookId=${id}`);
         if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
         
         const episodes = await res.json();
@@ -325,7 +345,7 @@ app.get('/drama/:id', async (c) => {
         let streamUrl = '';
         if (targetEncUrl) {
             try {
-                const decRes = await fetch(`${BASE_API}/dramabox/decrypt?url=${encodeURIComponent(targetEncUrl)}`);
+                const decRes = await fetchApi(`${BASE_API}/dramabox/decrypt?url=${encodeURIComponent(targetEncUrl)}`);
                 const decData = await decRes.json();
                 streamUrl = decData.streamUrl || '';
             } catch (e) {
