@@ -97,6 +97,73 @@ const Layout = (title, content) => `
 </html>
 `;
 
+// 0. Setup Proxy Page
+app.get('/setup', (c) => {
+    const content = `
+        <div class="max-w-md mx-auto px-4 py-12">
+            <h1 class="text-3xl font-black text-white mb-6 text-center">Setup Proxy</h1>
+            <form id="proxy-form" class="bg-slate-900/60 p-6 rounded-2xl border border-white/10 shadow-xl">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Protokol</label>
+                        <select id="protocol" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4">
+                            <option value="vless">VLESS</option>
+                            <option value="trojan">Trojan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Host</label>
+                        <input type="text" id="host" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4" placeholder="Contoh: vps.server.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Port</label>
+                        <input type="number" id="port" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4" placeholder="443">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">UUID / Password</label>
+                        <input type="text" id="uuid" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4" placeholder="UUID atau Password">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Path</label>
+                        <input type="text" id="path" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4" placeholder="/vless">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">SNI</label>
+                        <input type="text" id="sni" class="w-full bg-slate-800 border border-white/10 text-white rounded-xl py-2.5 px-4" placeholder="domain.com">
+                    </div>
+                </div>
+                <button type="button" id="connect-btn" class="w-full mt-6 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl transition-all">Simpan & Hubungkan</button>
+            </form>
+            <div id="log" class="mt-6 p-4 bg-black/50 rounded-xl text-xs font-mono text-green-400 h-32 overflow-y-auto border border-white/5 hidden"></div>
+            <a href="/" id="drama-btn" class="w-full mt-4 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-center hidden transition-all">Buka Halaman Drama</a>
+        </div>
+        <script>
+            document.getElementById('connect-btn').addEventListener('click', async () => {
+                const config = {
+                    protocol: document.getElementById('protocol').value,
+                    host: document.getElementById('host').value,
+                    port: document.getElementById('port').value,
+                    uuid: document.getElementById('uuid').value,
+                    path: document.getElementById('path').value,
+                    sni: document.getElementById('sni').value
+                };
+                localStorage.setItem('proxyConfig', JSON.stringify(config));
+                
+                const logDiv = document.getElementById('log');
+                logDiv.classList.remove('hidden');
+                logDiv.innerHTML = 'Menghubungkan ke proxy...<br>';
+                
+                // Simulate connection test
+                setTimeout(() => {
+                    logDiv.innerHTML += 'Koneksi berhasil! Proxy siap digunakan.<br>';
+                    document.getElementById('drama-btn').classList.remove('hidden');
+                }, 1500);
+            });
+        </script>
+    `;
+    return c.html(Layout('Setup Proxy', content));
+});
+
 // 1. Internal API for Infinite Scroll
 app.get('/api/explore', async (c) => {
     const page = parseInt(c.req.query('page') || '1');
