@@ -56,21 +56,12 @@ const Layout = (title, content) => `
     <title>${title} - DramaBox Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { 
-            background-color: #020617; 
-            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #020617 70%);
-            background-attachment: fixed;
-            color: #f8fafc; 
-        }
+        body { background-color: #020617; background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #020617 70%); background-attachment: fixed; color: #f8fafc; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        
-        /* Custom scrollbar umum */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        
-        /* Scrollbar khusus untuk list episode horizontal */
         .scroll-horizontal::-webkit-scrollbar { height: 6px; }
         .scroll-horizontal::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 10px; }
         .scroll-horizontal::-webkit-scrollbar-thumb { background: #e11d48; border-radius: 10px; }
@@ -81,17 +72,23 @@ const Layout = (title, content) => `
     <header class="bg-slate-950/50 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <a href="/" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-rose-600 tracking-tighter flex items-center gap-2 drop-shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#rose-gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <defs>
-                        <linearGradient id="rose-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#fb7185" />
-                            <stop offset="100%" stop-color="#e11d48" />
-                        </linearGradient>
-                    </defs>
-                    <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>
-                </svg>
                 DramaBox
             </a>
+            <!-- Proxy Widget -->
+            <div class="relative">
+                <button id="proxy-toggle" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all border border-white/10">
+                    VPN: <span id="proxy-status" class="text-rose-400">Off</span>
+                </button>
+                <div id="proxy-panel" class="absolute right-0 mt-2 w-72 bg-slate-900 border border-white/10 rounded-2xl p-4 shadow-2xl hidden z-50">
+                    <h3 class="text-white font-bold mb-3">Konfigurasi VPN</h3>
+                    <div class="space-y-2">
+                        <input type="text" id="proxy-host" placeholder="Host" class="w-full bg-slate-800 border border-white/10 text-white rounded-lg py-2 px-3 text-sm">
+                        <input type="number" id="proxy-port" placeholder="Port" class="w-full bg-slate-800 border border-white/10 text-white rounded-lg py-2 px-3 text-sm">
+                        <input type="text" id="proxy-uuid" placeholder="UUID/Password" class="w-full bg-slate-800 border border-white/10 text-white rounded-lg py-2 px-3 text-sm">
+                        <button id="proxy-connect" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 rounded-lg text-sm transition-all">Hubungkan</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
     
@@ -99,12 +96,41 @@ const Layout = (title, content) => `
         ${content}
     </main>
     
-    <footer class="bg-slate-950/80 border-t border-white/5 py-8 mt-auto backdrop-blur-lg">
-        <div class="max-w-7xl mx-auto px-4 text-center text-slate-500 text-sm">
-            <p>&copy; ${new Date().getFullYear()} DramaBox Premium Streaming.</p>
-            <p class="mt-2 text-slate-600 text-xs">Ditenagai oleh Hono.js & Cloudflare Workers</p>
-        </div>
-    </footer>
+    <script>
+        // Proxy Widget Logic
+        const toggle = document.getElementById('proxy-toggle');
+        const panel = document.getElementById('proxy-panel');
+        const status = document.getElementById('proxy-status');
+        
+        toggle.addEventListener('click', () => panel.classList.toggle('hidden'));
+        
+        // Check for cookie
+        const getCookie = (name) => {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        };
+
+        if (getCookie('proxyConfig')) {
+            status.textContent = 'On';
+            status.classList.replace('text-rose-400', 'text-green-400');
+        }
+
+        document.getElementById('proxy-connect').addEventListener('click', () => {
+            const config = {
+                host: document.getElementById('proxy-host').value,
+                port: document.getElementById('proxy-port').value,
+                uuid: document.getElementById('proxy-uuid').value,
+                protocol: 'vless' // Default
+            };
+            // Save to cookie
+            document.cookie = "proxyConfig=" + JSON.stringify(config) + "; path=/; max-age=86400";
+            status.textContent = 'On';
+            status.classList.replace('text-rose-400', 'text-green-400');
+            panel.classList.add('hidden');
+            window.location.reload(); // Reload to fetch with new proxy
+        });
+    </script>
 </body>
 </html>
 `;
@@ -181,9 +207,17 @@ app.get('/api/explore', async (c) => {
     const page = parseInt(c.req.query('page') || '1');
     const keywords = ['love', 'ceo', 'revenge', 'billionaire', 'marriage', 'secret', 'family', 'wife', 'husband', 'boss'];
     
+    let proxyConfig = null;
+    try {
+        const cookie = c.req.cookie('proxyConfig');
+        if (cookie) proxyConfig = JSON.parse(decodeURIComponent(cookie));
+    } catch (e) {
+        console.error("Failed to parse proxy cookie", e);
+    }
+
     try {
         const keyword = keywords[(page - 1) % keywords.length];
-        const res = await fetchApi(`${BASE_API}/dramabox/search?query=${keyword}`);
+        const res = await fetchApi(`${BASE_API}/dramabox/search?query=${keyword}`, proxyConfig);
         if (!res.ok) return c.json([]);
         
         const data = await res.json();
@@ -230,6 +264,14 @@ app.get('/', async (c) => {
     const query = c.req.query('q');
     const category = c.req.query('c');
     
+    let proxyConfig = null;
+    try {
+        const cookie = c.req.cookie('proxyConfig');
+        if (cookie) proxyConfig = JSON.parse(decodeURIComponent(cookie));
+    } catch (e) {
+        console.error("Failed to parse proxy cookie", e);
+    }
+    
     try {
         let apiUrl = `${BASE_API}/dramabox/latest`;
         let isSearch = false;
@@ -242,7 +284,7 @@ app.get('/', async (c) => {
             isSearch = true;
         }
 
-        const res = await fetchApi(apiUrl);
+        const res = await fetchApi(apiUrl, proxyConfig);
         if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
         
         let dramas = await res.json();
@@ -407,10 +449,18 @@ app.get('/drama/:id', async (c) => {
     const id = c.req.param('id');
     const activeEpUrl = c.req.query('url');
     const activeEpNum = c.req.query('ep') || 'Episode 1';
+    
+    let proxyConfig = null;
+    try {
+        const cookie = c.req.cookie('proxyConfig');
+        if (cookie) proxyConfig = JSON.parse(decodeURIComponent(cookie));
+    } catch (e) {
+        console.error("Failed to parse proxy cookie", e);
+    }
 
     try {
         // Fetch Episodes
-        const res = await fetchApi(`${BASE_API}/dramabox/allepisode?bookId=${id}`);
+        const res = await fetchApi(`${BASE_API}/dramabox/allepisode?bookId=${id}`, proxyConfig);
         if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
         
         const episodes = await res.json();
@@ -434,7 +484,7 @@ app.get('/drama/:id', async (c) => {
         let streamUrl = '';
         if (targetEncUrl) {
             try {
-                const decRes = await fetchApi(`${BASE_API}/dramabox/decrypt?url=${encodeURIComponent(targetEncUrl)}`);
+                const decRes = await fetchApi(`${BASE_API}/dramabox/decrypt?url=${encodeURIComponent(targetEncUrl)}`, proxyConfig);
                 const decData = await decRes.json();
                 streamUrl = decData.streamUrl || '';
             } catch (e) {
