@@ -1,20 +1,27 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# DracinFree Installation Guide
 
-# Run and deploy your AI Studio app
+This guide will help you deploy the DracinFree application to an Ubuntu VPS.
 
-This contains everything you need to run your app locally.
+## Prerequisites
+- An Ubuntu VPS (20.04 or 22.04 recommended)
+- A domain name pointing to your VPS IP address
 
-View your app in AI Studio: https://ai.studio/apps/c57ef4b7-46ee-4a09-9969-55aa7da56d53
+## Installation
+1. Log in to your VPS via SSH.
+2. Clone the repository:
+   ```bash
+   git clone https://github.com/2026musik-code/dracinfree /var/www/dracinfree
+   cd /var/www/dracinfree
+   ```
+3. Make the deployment script executable and run it:
+   ```bash
+   chmod +x deploy.sh
+   sudo ./deploy.sh
+   ```
+4. Follow the prompts to enter your domain name.
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Updating the Application
+To update the application to the latest version from GitHub, run the provided update script:
+```bash
+sudo /var/www/dracinfree/update.sh
+```

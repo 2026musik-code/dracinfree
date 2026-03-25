@@ -46,3 +46,14 @@ sudo systemctl restart nginx
 
 # 7. Setup SSL
 sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos -m admin@$DOMAIN
+
+# 8. Create update script
+cat << 'EOF' > /var/www/dracinfree/update.sh
+#!/bin/bash
+cd /var/www/dracinfree
+git pull origin main
+npm install
+pm2 restart dracinfree
+echo "Web updated successfully!"
+EOF
+chmod +x /var/www/dracinfree/update.sh
