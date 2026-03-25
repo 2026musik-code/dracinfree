@@ -20,8 +20,17 @@ const fetchApi = async (url) => {
         if (res.ok) return res;
         throw new Error(`Primary fetch failed with status: ${res.status}`);
     } catch (e) {
-        console.warn('Primary fetch failed, using proxy fallback:', e.message);
-        return await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url));
+        console.warn('Primary fetch failed, trying direct call fallback:', e.message);
+        // Try direct call as fallback
+        return await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'en-US,en;q=0.9,id;q=0.8',
+                'Referer': 'https://api.sansekai.my.id/',
+                'Origin': 'https://api.sansekai.my.id'
+            }
+        });
     }
 };
 
