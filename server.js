@@ -1,27 +1,21 @@
 import express from 'express';
-import cors from 'cors';
-import fetch from 'node-fetch';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
-app.use(express.json());
+// Serve static files from the current directory
+app.use(express.static(__dirname));
 
-// Proxy route
-app.get('/api/proxy', async (req, res) => {
-    const targetUrl = req.query.url;
-    if (!targetUrl) return res.status(400).send('Missing url parameter');
-    
-    try {
-        const response = await fetch(targetUrl);
-        const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+// Fallback to index.html for SPA routing
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Drama Pendek</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        netflix: {
+                            red: '#E50914',
+                            black: '#141414',
+                            dark: '#181818'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #141414; color: white; }
+        /* Hide scrollbar for horizontal scroll */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-netflix-black/90 backdrop-blur-sm border-b border-gray-800">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <h1 class="text-2xl font-bold text-netflix-red tracking-wider">DRAMA<span class="text-white">FLIX</span></h1>
+            <form id="searchForm" class="w-full sm:w-auto flex flex-1 max-w-md">
+                <input type="text" id="bookIdInput" placeholder="Masukkan Book ID..." 
+                    class="w-full bg-gray-800 text-white px-4 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-netflix-red"
+                    value="7515442340299803664" required>
+                <button type="submit" class="bg-netflix-red hover:bg-red-700 px-4 py-2 rounded-r-md font-semibold transition">
+                    Cari
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 py-8">
+        <!-- Loading State -->
+        <div id="loading" class="hidden text-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-netflix-red mx-auto"></div>
+            <p class="mt-4 text-gray-400">Memuat data drama...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="hidden bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-md mb-6">
+        </div>
+
+        <!-- Drama Info -->
+        <div id="dramaInfo" class="hidden flex flex-col md:flex-row gap-8 mb-12">
+            <div class="w-full md:w-1/3 lg:w-1/4 flex-shrink-0">
+                <img id="dramaCover" src="" alt="Cover" class="w-full rounded-lg shadow-2xl shadow-black/50 object-cover aspect-[3/4]">
+            </div>
+            <div class="flex-1 flex flex-col justify-center">
+                <h2 id="dramaTitle" class="text-3xl md:text-5xl font-bold mb-4 text-white"></h2>
+                <div class="flex flex-wrap items-center gap-3 mb-6">
+                    <span id="dramaStatus" class="px-2 py-1 bg-green-600 text-xs font-bold rounded-sm uppercase tracking-wider"></span>
+                    <span id="dramaEps" class="text-gray-300 text-sm font-medium"></span>
+                </div>
+                <div id="dramaTags" class="flex flex-wrap gap-2 mb-6"></div>
+                <p id="dramaIntro" class="text-gray-300 leading-relaxed text-sm md:text-base"></p>
+            </div>
+        </div>
+
+        <!-- Episodes List -->
+        <div id="episodesContainer" class="hidden">
+            <h3 class="text-2xl font-bold mb-6 border-l-4 border-netflix-red pl-3">Daftar Episode</h3>
+            <div id="episodesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <!-- Cards will be injected here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="fixed inset-0 z-[100] bg-black/95 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="relative w-full max-w-4xl bg-netflix-dark rounded-xl overflow-hidden shadow-2xl border border-gray-800">
+            <div class="flex justify-between items-center p-4 border-b border-gray-800">
+                <h3 id="modalTitle" class="font-bold text-lg truncate pr-4">Memuat Video...</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-white transition p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="relative w-full aspect-video bg-black flex items-center justify-center">
+                <div id="videoLoading" class="absolute inset-0 flex items-center justify-center">
+                    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-netflix-red"></div>
+                </div>
+                <video id="player" controls class="w-full h-full hidden" playsinline></video>
+                <div id="videoError" class="hidden absolute inset-0 flex items-center justify-center text-red-500 p-4 text-center"></div>
+            </div>
+            <div class="p-4 bg-netflix-dark flex justify-between items-center">
+                <select id="qualitySelect" class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700 focus:outline-none focus:border-netflix-red hidden">
+                </select>
+                <div id="modalLikes" class="text-gray-400 text-sm flex items-center gap-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'fdv_BHBuTCSNZCmuG6F5opa6TQ';
+        const BASE_URL = 'https://api.ferdev.my.id/internet/melolo';
+
+        // Elements
+        const form = document.getElementById('searchForm');
+        const input = document.getElementById('bookIdInput');
+        const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const dramaInfo = document.getElementById('dramaInfo');
+        const episodesContainer = document.getElementById('episodesContainer');
+        const episodesGrid = document.getElementById('episodesGrid');
+        
+        const modal = document.getElementById('videoModal');
+        const player = document.getElementById('player');
+        const closeModalBtn = document.getElementById('closeModal');
+        const videoLoading = document.getElementById('videoLoading');
+        const videoError = document.getElementById('videoError');
+        const qualitySelect = document.getElementById('qualitySelect');
+
+        let currentStreamData = null;
+
+        // Trik Nina: Handle HEIC to WEBP
+        function handleHeic(url) {
+            if (!url) return '';
+            return url.replace(/\.heic$/i, '.webp');
+        }
+
+        function formatDuration(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const bookId = input.value.trim();
+            if (!bookId) return;
+
+            // Reset UI
+            errorDiv.classList.add('hidden');
+            dramaInfo.classList.add('hidden');
+            episodesContainer.classList.add('hidden');
+            loading.classList.remove('hidden');
+
+            try {
+                const res = await fetch(`${BASE_URL}/detail?bookId=${bookId}&apikey=${API_KEY}`);
+                const data = await res.json();
+
+                if (!data.success || !data.result) {
+                    throw new Error(data.message || 'Drama tidak ditemukan.');
+                }
+
+                renderDrama(data.result);
+            } catch (err) {
+                errorDiv.textContent = err.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                loading.classList.add('hidden');
+            }
+        });
+
+        function renderDrama(drama) {
+            // Info
+            document.getElementById('dramaCover').src = handleHeic(drama.cover);
+            document.getElementById('dramaTitle').textContent = drama.title;
+            document.getElementById('dramaStatus').textContent = drama.status || 'Ongoing';
+            document.getElementById('dramaEps').textContent = `${drama.total_episodes} Episode`;
+            document.getElementById('dramaIntro').textContent = drama.intro;
+
+            // Tags
+            const tagsContainer = document.getElementById('dramaTags');
+            tagsContainer.innerHTML = '';
+            if (drama.tags && drama.tags.length) {
+                drama.tags.forEach(tag => {
+                    const span = document.createElement('span');
+                    span.className = 'px-2 py-1 bg-gray-800 text-gray-300 text-xs rounded-md border border-gray-700';
+                    span.textContent = tag;
+                    tagsContainer.appendChild(span);
+                });
+            }
+
+            // Episodes
+            episodesGrid.innerHTML = '';
+            if (drama.episodes && drama.episodes.length) {
+                drama.episodes.forEach(ep => {
+                    const card = document.createElement('div');
+                    card.className = 'group relative bg-gray-800 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-netflix-red transition-all duration-300 transform hover:-translate-y-1';
+                    card.onclick = () => openPlayer(ep);
+                    
+                    card.innerHTML = `
+                        <div class="aspect-video relative overflow-hidden bg-gray-900">
+                            <img src="${handleHeic(ep.cover)}" alt="Ep ${ep.episode}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" loading="lazy">
+                            <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors"></div>
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div class="w-10 h-10 bg-netflix-red/90 rounded-full flex items-center justify-center shadow-lg">
+                                    <svg class="w-5 h-5 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-1.5 right-1.5 bg-black/80 px-1.5 py-0.5 rounded text-[10px] font-medium text-white">
+                                ${formatDuration(ep.duration)}
+                            </div>
+                            <div class="absolute top-1.5 left-1.5 bg-netflix-red px-1.5 py-0.5 rounded text-[10px] font-bold text-white">
+                                EP ${ep.episode}
+                            </div>
+                        </div>
+                        <div class="p-2.5">
+                            <h4 class="text-sm font-medium text-gray-200 line-clamp-1 mb-1 group-hover:text-white">${ep.title || 'Episode ' + ep.episode}</h4>
+                            <div class="flex items-center text-xs text-gray-400 gap-1">
+                                <svg class="w-3.5 h-3.5 text-netflix-red" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                                ${formatNumber(ep.likes)}
+                            </div>
+                        </div>
+                    `;
+                    episodesGrid.appendChild(card);
+                });
+            }
+
+            dramaInfo.classList.remove('hidden');
+            episodesContainer.classList.remove('hidden');
+        }
+
+        async function openPlayer(ep) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+            
+            document.getElementById('modalTitle').textContent = `Episode ${ep.episode}: ${ep.title || ''}`;
+            document.getElementById('modalLikes').innerHTML = `<svg class="w-4 h-4 text-netflix-red" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg> ${formatNumber(ep.likes)}`;
+            
+            player.classList.add('hidden');
+            videoError.classList.add('hidden');
+            qualitySelect.classList.add('hidden');
+            videoLoading.classList.remove('hidden');
+            player.src = '';
+
+            try {
+                const res = await fetch(`${BASE_URL}/stream?videoId=${ep.video_id}&apikey=${API_KEY}`);
+                const data = await res.json();
+
+                if (!data.success || !data.result || data.result.length === 0) {
+                    throw new Error('Video stream tidak tersedia.');
+                }
+
+                currentStreamData = data.result;
+                
+                // Populate quality select
+                qualitySelect.innerHTML = '';
+                currentStreamData.forEach((stream, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = stream.quality;
+                    qualitySelect.appendChild(option);
+                });
+
+                // Select highest quality by default (usually first item or 720p)
+                const defaultIndex = 0;
+                qualitySelect.value = defaultIndex;
+                qualitySelect.classList.remove('hidden');
+
+                playStream(currentStreamData[defaultIndex].url);
+
+            } catch (err) {
+                videoError.textContent = err.message;
+                videoError.classList.remove('hidden');
+                videoLoading.classList.add('hidden');
+            }
+        }
+
+        function playStream(url) {
+            player.src = url;
+            player.classList.remove('hidden');
+            videoLoading.classList.add('hidden');
+            player.play().catch(e => console.log("Auto-play prevented", e));
+        }
+
+        qualitySelect.addEventListener('change', (e) => {
+            if (currentStreamData) {
+                const currentTime = player.currentTime;
+                const isPaused = player.paused;
+                
+                playStream(currentStreamData[e.target.value].url);
+                
+                player.addEventListener('loadedmetadata', function onLoaded() {
+                    player.currentTime = currentTime;
+                    if (isPaused) player.pause();
+                    player.removeEventListener('loadedmetadata', onLoaded);
+                });
+            }
+        });
+
+        function closePlayer() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+            player.pause();
+            player.src = '';
+        }
+
+        closeModalBtn.addEventListener('click', closePlayer);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closePlayer();
+        });
+
+        // Auto-fetch default ID on load
+        window.addEventListener('DOMContentLoaded', () => {
+            form.dispatchEvent(new Event('submit'));
+        });
+    </script>
+</body>
+</html>

@@ -1,15 +1,11 @@
 {
-  "name": "dracinfree-server",
+  "name": "drama-spa",
   "version": "1.0.0",
-  "description": "Drama streaming server",
-  "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "cors": "^2.8.5",
-    "node-fetch": "^3.3.2"
+    "express": "^4.21.2"
   }
 }
