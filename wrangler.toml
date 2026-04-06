@@ -1,5 +1,6 @@
 name = "dracinfree"
 compatibility_date = "2024-04-05"
+main = "worker.js"
 
 [assets]
 directory = "."
