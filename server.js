@@ -16,6 +16,11 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
+// Route for registration page
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, 'register.html'));
+});
+
 // Fallback to index.html for SPA routing
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
