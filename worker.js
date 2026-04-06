@@ -76,6 +76,70 @@ async function handleApiRequest(request, env) {
       }));
     }
 
+    // --- ADMIN API ---
+    if (url.pathname.startsWith('/api/admin/')) {
+      // GET Pending Users
+      if (url.pathname === '/api/admin/pending' && method === 'GET') {
+        const { results } = await env.DB.prepare("SELECT id, name, email, created_at as date FROM users WHERE status = 'pending'").all();
+        return new Response(JSON.stringify(results));
+      }
+      
+      // GET Active Users
+      if (url.pathname === '/api/admin/active' && method === 'GET') {
+        const { results } = await env.DB.prepare(`
+          SELECT u.id, u.name, u.email, a.api_key as key, a.daily_limit as limit_count 
+          FROM users u 
+          JOIN api_keys a ON u.id = a.user_id 
+          WHERE u.status = 'active' AND u.role = 'user'
+        `).all();
+        return new Response(JSON.stringify(results));
+      }
+
+      // POST Approve User
+      if (url.pathname === '/api/admin/approve' && method === 'POST') {
+        const { userId } = await request.json();
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let apiKey = 'melolo_key_';
+        for (let i = 0; i < 12; i++) apiKey += chars.charAt(Math.floor(Math.random() * chars.length));
+        
+        await env.DB.prepare("UPDATE users SET status = 'active' WHERE id = ?").bind(userId).run();
+        await env.DB.prepare("INSERT INTO api_keys (user_id, api_key, daily_limit) VALUES (?, ?, 100)").bind(userId, apiKey).run();
+        return new Response(JSON.stringify({ success: true }));
+      }
+
+      // POST Reject/Delete Pending User
+      if (url.pathname === '/api/admin/reject' && method === 'POST') {
+        const { userId } = await request.json();
+        await env.DB.prepare("DELETE FROM users WHERE id = ? AND status = 'pending'").bind(userId).run();
+        return new Response(JSON.stringify({ success: true }));
+      }
+
+      // POST Delete Active User
+      if (url.pathname === '/api/admin/delete' && method === 'POST') {
+        const { userId } = await request.json();
+        await env.DB.prepare("DELETE FROM users WHERE id = ?").bind(userId).run();
+        await env.DB.prepare("DELETE FROM api_keys WHERE user_id = ?").bind(userId).run();
+        return new Response(JSON.stringify({ success: true }));
+      }
+
+      // POST Update Limit
+      if (url.pathname === '/api/admin/limit' && method === 'POST') {
+        const { userId, limit } = await request.json();
+        await env.DB.prepare("UPDATE api_keys SET daily_limit = ? WHERE user_id = ?").bind(limit, userId).run();
+        return new Response(JSON.stringify({ success: true }));
+      }
+
+      // POST Change Password
+      if (url.pathname === '/api/admin/password' && method === 'POST') {
+        const { oldPassword, newPassword } = await request.json();
+        const admin = await env.DB.prepare("SELECT * FROM users WHERE role = 'admin' AND password = ?").bind(oldPassword).first();
+        if (!admin) return new Response(JSON.stringify({ error: 'Sandi saat ini salah' }), { status: 400 });
+        
+        await env.DB.prepare("UPDATE users SET password = ? WHERE id = ?").bind(newPassword, admin.id).run();
+        return new Response(JSON.stringify({ success: true }));
+      }
+    }
+
   } catch (e) {
     return new Response(JSON.stringify({ error: e.message }), { status: 500 });
   }

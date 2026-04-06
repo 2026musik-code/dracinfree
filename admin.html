@@ -149,39 +149,30 @@
     </main>
 
     <script>
-        // --- Mock Data Initialization (Simulating a Database) ---
-        if (!localStorage.getItem('admin_pending_users')) {
-            localStorage.setItem('admin_pending_users', JSON.stringify([
-                { id: Date.now() + 1, name: 'Budi Santoso', email: 'budi@example.com', date: new Date().toLocaleDateString('id-ID') },
-                { id: Date.now() + 2, name: 'Siti Aminah', email: 'siti@example.com', date: new Date().toLocaleDateString('id-ID') },
-                { id: Date.now() + 3, name: 'Agus Pratama', email: 'agus@example.com', date: new Date().toLocaleDateString('id-ID') }
-            ]));
-        }
-
-        if (!localStorage.getItem('admin_active_users')) {
-            localStorage.setItem('admin_active_users', JSON.stringify([
-                { id: Date.now() + 4, name: 'User Premium', email: 'premium@melolo.com', key: 'melolo_prem_9x8y7z', limit: 1000 },
-                { id: Date.now() + 5, name: 'User Trial', email: 'trial@melolo.com', key: 'melolo_trial_1a2b3c', limit: 100 }
-            ]));
-        }
-
         // --- State Management ---
-        let pendingUsers = JSON.parse(localStorage.getItem('admin_pending_users'));
-        let activeUsers = JSON.parse(localStorage.getItem('admin_active_users'));
+        let pendingUsers = [];
+        let activeUsers = [];
 
-        function saveData() {
-            localStorage.setItem('admin_pending_users', JSON.stringify(pendingUsers));
-            localStorage.setItem('admin_active_users', JSON.stringify(activeUsers));
-            updateBadge();
+        // --- API Calls ---
+        async function fetchPendingUsers() {
+            try {
+                const res = await fetch('/api/admin/pending');
+                pendingUsers = await res.json();
+                updateBadge();
+                renderPendingUsers();
+            } catch (e) {
+                console.error('Failed to fetch pending users', e);
+            }
         }
 
-        function generateApiKey() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let result = 'melolo_key_';
-            for (let i = 0; i < 12; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
+        async function fetchActiveUsers() {
+            try {
+                const res = await fetch('/api/admin/active');
+                activeUsers = await res.json();
+                renderActiveUsers();
+            } catch (e) {
+                console.error('Failed to fetch active users', e);
             }
-            return result;
         }
 
         // --- UI Rendering ---
@@ -204,7 +195,7 @@
                 tr.innerHTML = `
                     <td class="p-4 font-medium text-white">${user.name}</td>
                     <td class="p-4 text-gray-400">${user.email}</td>
-                    <td class="p-4 text-gray-400">${user.date}</td>
+                    <td class="p-4 text-gray-400">${new Date(user.date).toLocaleDateString('id-ID')}</td>
                     <td class="p-4 text-right space-x-2">
                         <button onclick="approveUser(${user.id})" class="px-3 py-1.5 bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white border border-green-500/50 rounded-lg text-sm font-medium transition">Setuju</button>
                         <button onclick="rejectUser(${user.id})" class="px-3 py-1.5 bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500 hover:text-white border border-yellow-500/50 rounded-lg text-sm font-medium transition">Tolak</button>
@@ -234,7 +225,7 @@
                         <code class="px-2 py-1 bg-gray-950 text-brand-red rounded border border-gray-800 text-xs">${user.key}</code>
                     </td>
                     <td class="p-4">
-                        <input type="number" id="limit-${user.id}" value="${user.limit}" class="w-20 bg-gray-950 border border-gray-700 text-white rounded px-2 py-1 text-sm focus:outline-none focus:border-brand-red">
+                        <input type="number" id="limit-${user.id}" value="${user.limit_count}" class="w-20 bg-gray-950 border border-gray-700 text-white rounded px-2 py-1 text-sm focus:outline-none focus:border-brand-red">
                     </td>
                     <td class="p-4 text-right space-x-2">
                         <button onclick="updateLimit(${user.id})" class="px-3 py-1.5 bg-blue-500/20 text-blue-500 hover:bg-blue-500 hover:text-white border border-blue-500/50 rounded-lg text-sm font-medium transition">Simpan Limit</button>
@@ -246,44 +237,29 @@
         }
 
         // --- Actions ---
-        function approveUser(id) {
-            const userIndex = pendingUsers.findIndex(u => u.id === id);
-            if (userIndex > -1) {
-                const user = pendingUsers[userIndex];
-                // Move to active
-                activeUsers.push({
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    key: generateApiKey(),
-                    limit: 100 // Default limit
-                });
-                // Remove from pending
-                pendingUsers.splice(userIndex, 1);
-                saveData();
-                renderPendingUsers();
-                renderActiveUsers();
-                alert(`User ${user.name} berhasil disetujui! API Key telah dibuat.`);
+        async function approveUser(id) {
+            if(confirm('Setujui user ini dan buatkan API Key?')) {
+                await fetch('/api/admin/approve', { method: 'POST', body: JSON.stringify({ userId: id }) });
+                fetchPendingUsers();
+                fetchActiveUsers();
             }
         }
 
-        function rejectUser(id) {
+        async function rejectUser(id) {
             if(confirm('Tolak pendaftaran user ini?')) {
-                pendingUsers = pendingUsers.filter(u => u.id !== id);
-                saveData();
-                renderPendingUsers();
+                await fetch('/api/admin/reject', { method: 'POST', body: JSON.stringify({ userId: id }) });
+                fetchPendingUsers();
             }
         }
 
-        function deletePending(id) {
+        async function deletePending(id) {
             if(confirm('Hapus data pendaftaran ini dari daftar?')) {
-                pendingUsers = pendingUsers.filter(u => u.id !== id);
-                saveData();
-                renderPendingUsers();
+                await fetch('/api/admin/reject', { method: 'POST', body: JSON.stringify({ userId: id }) });
+                fetchPendingUsers();
             }
         }
 
-        function updateLimit(id) {
+        async function updateLimit(id) {
             const input = document.getElementById(`limit-${id}`);
             const newLimit = parseInt(input.value);
             
@@ -292,21 +268,43 @@
                 return;
             }
 
-            const user = activeUsers.find(u => u.id === id);
-            if (user) {
-                user.limit = newLimit;
-                saveData();
-                alert(`Limit untuk ${user.name} berhasil diubah menjadi ${newLimit}.`);
+            await fetch('/api/admin/limit', { method: 'POST', body: JSON.stringify({ userId: id, limit: newLimit }) });
+            alert('Limit berhasil diperbarui.');
+            fetchActiveUsers();
+        }
+
+        async function deleteActiveUser(id) {
+            if(confirm('PERINGATAN: Anda yakin ingin menghapus user aktif ini? API Key mereka tidak akan bisa digunakan lagi.')) {
+                await fetch('/api/admin/delete', { method: 'POST', body: JSON.stringify({ userId: id }) });
+                fetchActiveUsers();
             }
         }
 
-        function deleteActiveUser(id) {
-            if(confirm('PERINGATAN: Anda yakin ingin menghapus user aktif ini? API Key mereka tidak akan bisa digunakan lagi.')) {
-                activeUsers = activeUsers.filter(u => u.id !== id);
-                saveData();
-                renderActiveUsers();
+        // Change Password
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const oldPassword = e.target[0].value;
+            const newPassword = e.target[1].value;
+            const confirmPassword = e.target[2].value;
+            
+            if(newPassword !== confirmPassword) {
+                alert('Konfirmasi sandi baru tidak cocok!');
+                return;
             }
-        }
+            
+            const res = await fetch('/api/admin/password', { 
+                method: 'POST', 
+                body: JSON.stringify({ oldPassword, newPassword }) 
+            });
+            const data = await res.json();
+            
+            if(data.success) {
+                alert('Kata sandi berhasil diperbarui!');
+                e.target.reset();
+            } else {
+                alert(data.error || 'Gagal memperbarui kata sandi.');
+            }
+        });
 
         // --- Navigation Logic ---
         const views = ['profile', 'registrations', 'users'];
@@ -339,9 +337,8 @@
         });
 
         // Initialize
-        updateBadge();
-        renderPendingUsers();
-        renderActiveUsers();
+        fetchPendingUsers();
+        fetchActiveUsers();
 
     </script>
 </body>
