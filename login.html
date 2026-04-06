@@ -119,11 +119,14 @@
                 } else {
                     if (data.role === 'admin') {
                         alert('Login berhasil sebagai Admin!');
+                        localStorage.setItem('melolo_user', JSON.stringify(data.user));
+                        localStorage.setItem('melolo_is_admin', 'true');
                         window.location.href = '/admin';
                     } else {
                         alert('Login berhasil!');
                         // Simpan data user ke localStorage untuk ditampilkan di Profil
                         localStorage.setItem('melolo_user', JSON.stringify(data.user));
+                        localStorage.removeItem('melolo_is_admin'); // Pastikan bukan admin
                         if (data.apiKey) {
                             localStorage.setItem('melolo_api_key', data.apiKey);
                             localStorage.setItem('melolo_limit', data.limit);
