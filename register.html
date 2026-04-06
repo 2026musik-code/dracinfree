@@ -19,6 +19,42 @@
 </head>
 <body class="bg-brand-dark text-white min-h-screen flex items-center justify-center relative overflow-hidden font-sans antialiased">
 
+    <!-- Pending Approval Overlay (TV Animation) -->
+    <div id="pendingOverlay" class="fixed inset-0 z-50 bg-brand-dark/95 backdrop-blur-md hidden flex-col items-center justify-center">
+        <!-- Retro TV Animation -->
+        <div class="relative w-64 h-48 bg-gray-800 rounded-2xl border-8 border-gray-700 shadow-2xl flex items-center justify-center overflow-hidden mb-6">
+            <!-- Antenna -->
+            <div class="absolute -top-8 left-1/2 w-1 h-8 bg-gray-500 transform -translate-x-4 rotate-45"></div>
+            <div class="absolute -top-8 left-1/2 w-1 h-8 bg-gray-500 transform translate-x-4 -rotate-45"></div>
+            
+            <!-- Screen -->
+            <div class="w-52 h-36 bg-black rounded-lg relative overflow-hidden">
+                <!-- Color bars (SMPTE) -->
+                <div class="absolute inset-0 flex animate-pulse opacity-80">
+                    <div class="flex-1 bg-gray-300"></div>
+                    <div class="flex-1 bg-yellow-400"></div>
+                    <div class="flex-1 bg-cyan-400"></div>
+                    <div class="flex-1 bg-green-500"></div>
+                    <div class="flex-1 bg-magenta-500"></div>
+                    <div class="flex-1 bg-red-500"></div>
+                    <div class="flex-1 bg-blue-600"></div>
+                </div>
+                <!-- Text on screen -->
+                <div class="absolute inset-0 flex items-center justify-center bg-black/60">
+                    <span class="text-white font-mono text-sm text-center px-2 animate-bounce tracking-widest">STAND BY</span>
+                </div>
+            </div>
+            <!-- Knobs -->
+            <div class="absolute right-2 top-4 w-3 h-3 rounded-full bg-gray-600"></div>
+            <div class="absolute right-2 top-10 w-3 h-3 rounded-full bg-gray-600"></div>
+        </div>
+        
+        <h2 class="text-2xl font-bold text-white mb-2 text-center">Pendaftaran Berhasil!</h2>
+        <p class="text-gray-400 text-center max-w-sm px-4 mb-8">Akun Anda sedang dalam antrean. Silakan tunggu Admin menyetujui pendaftaran Anda sebelum dapat masuk.</p>
+        
+        <button onclick="window.location.href='/login'" class="px-8 py-3 bg-brand-red text-white rounded-xl font-bold hover:bg-red-700 transition shadow-lg shadow-brand-red/30">Kembali ke Login</button>
+    </div>
+
     <!-- Dynamic Video Poster Background -->
     <div id="bgContainer" class="absolute inset-0 z-0 transition-opacity duration-1000 opacity-0">
         <img id="bgImage" src="" class="w-full h-full object-cover scale-105 blur-sm" alt="Background">
@@ -72,7 +108,6 @@
 
             <div class="mt-6 text-center">
                 <p class="text-sm text-gray-400">Sudah punya akun? <a href="/login" class="text-brand-red hover:underline font-medium">Masuk di sini</a></p>
-                <p class="text-sm text-gray-400 mt-2"><a href="/" class="hover:text-white transition-colors">Kembali ke Beranda</a></p>
             </div>
         </div>
     </div>
@@ -128,8 +163,10 @@
                 if (!res.ok) {
                     alert(data.error || 'Gagal mendaftar. Silakan coba lagi.');
                 } else {
-                    alert('Pendaftaran berhasil! Akun Anda sedang menunggu persetujuan Admin.');
-                    window.location.href = '/login';
+                    // Tampilkan animasi TV
+                    const overlay = document.getElementById('pendingOverlay');
+                    overlay.classList.remove('hidden');
+                    overlay.classList.add('flex');
                 }
             } catch (err) {
                 alert('Terjadi kesalahan koneksi ke server.');
