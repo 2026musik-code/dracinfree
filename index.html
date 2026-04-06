@@ -376,9 +376,11 @@
             if (newKey) {
                 localStorage.setItem('melolo_api_key', newKey);
                 API_KEY = newKey;
+                alert('API Key berhasil disimpan!');
             } else {
                 localStorage.removeItem('melolo_api_key');
                 API_KEY = DEFAULT_API_KEY;
+                alert('API Key dihapus. Menggunakan API Key bawaan.');
             }
             
             // Hapus cache agar data di-fetch ulang dengan key baru
@@ -392,6 +394,7 @@
             // Reload home to apply new key
             switchTab('home');
             loadHome();
+            loadUserProfile(); // Update profile view
         }
 
         settingsBtn.addEventListener('click', () => {
@@ -888,8 +891,7 @@
                 localStorage.removeItem('melolo_limit');
                 localStorage.removeItem('melolo_usage');
                 localStorage.removeItem('melolo_is_admin');
-                loadUserProfile();
-                alert('Anda telah keluar.');
+                window.location.href = '/login';
             }
         }
 
