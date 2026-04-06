@@ -1,0 +1,5 @@
+name = "dracinfree"
+compatibility_date = "2024-04-05"
+
+[assets]
+directory = "."
