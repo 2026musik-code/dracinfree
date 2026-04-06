@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Melolo TV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { dark: '#0f172a', red: '#e11d48', card: '#1e293b' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-brand-dark text-white min-h-screen flex flex-col md:flex-row font-sans antialiased">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden bg-gray-900 border-b border-gray-800 p-4 flex justify-between items-center sticky top-0 z-50">
+        <h1 class="text-xl font-black text-brand-red tracking-wider">MELOLO<span class="text-white">ADMIN</span></h1>
+        <button id="mobileMenuBtn" class="text-gray-400 hover:text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-full md:w-64 bg-gray-900 border-r border-gray-800 flex-col hidden md:flex fixed md:sticky top-0 h-screen z-40">
+        <div class="p-6 border-b border-gray-800 hidden md:block">
+            <h1 class="text-2xl font-black text-brand-red tracking-wider">MELOLO<span class="text-white">ADMIN</span></h1>
+        </div>
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg bg-brand-red text-white font-medium transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                Profil Admin
+            </button>
+            <button onclick="switchTab('registrations')" id="nav-registrations" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white font-medium transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                Pendaftaran User
+                <span id="pendingBadge" class="ml-auto bg-brand-red text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white font-medium transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                User Aktif
+            </button>
+        </nav>
+        <div class="p-4 border-t border-gray-800">
+            <a href="/" class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm font-medium transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Kembali ke Web
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto h-screen custom-scrollbar">
+        
+        <!-- PROFILE VIEW -->
+        <div id="view-profile" class="max-w-3xl mx-auto">
+            <h2 class="text-2xl font-bold mb-6 border-l-4 border-brand-red pl-3">Profil Admin</h2>
+            
+            <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800 mb-6">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center border-2 border-brand-red">
+                        <svg class="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Super Admin</h3>
+                        <p class="text-gray-400">admin@melolo.com</p>
+                        <span class="inline-block mt-1 px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/50 rounded text-xs font-bold uppercase">Active</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                <h3 class="font-bold text-lg text-white mb-4">Ganti Kata Sandi</h3>
+                <form id="passwordForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Sandi Saat Ini</label>
+                        <input type="password" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Masukkan sandi saat ini">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Sandi Baru</label>
+                        <input type="password" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Masukkan sandi baru">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Konfirmasi Sandi Baru</label>
+                        <input type="password" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Ulangi sandi baru">
+                    </div>
+                    <button type="button" onclick="alert('Kata sandi berhasil diperbarui (Simulasi)')" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition">Simpan Sandi</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- REGISTRATIONS VIEW -->
+        <div id="view-registrations" class="hidden max-w-5xl mx-auto">
+            <h2 class="text-2xl font-bold mb-6 border-l-4 border-brand-red pl-3">Pendaftaran User Baru</h2>
+            <div class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-800/50 border-b border-gray-800 text-gray-400 text-sm uppercase tracking-wider">
+                                <th class="p-4 font-medium">Nama</th>
+                                <th class="p-4 font-medium">Email</th>
+                                <th class="p-4 font-medium">Tanggal Daftar</th>
+                                <th class="p-4 font-medium text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingTableBody" class="divide-y divide-gray-800">
+                            <!-- Rows injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVE USERS VIEW -->
+        <div id="view-users" class="hidden max-w-6xl mx-auto">
+            <h2 class="text-2xl font-bold mb-6 border-l-4 border-brand-red pl-3">Daftar User Aktif</h2>
+            <div class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-800/50 border-b border-gray-800 text-gray-400 text-sm uppercase tracking-wider">
+                                <th class="p-4 font-medium">Nama</th>
+                                <th class="p-4 font-medium">Email</th>
+                                <th class="p-4 font-medium">API Key</th>
+                                <th class="p-4 font-medium w-32">Limit / Hari</th>
+                                <th class="p-4 font-medium text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activeTableBody" class="divide-y divide-gray-800">
+                            <!-- Rows injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- Mock Data Initialization (Simulating a Database) ---
+        if (!localStorage.getItem('admin_pending_users')) {
+            localStorage.setItem('admin_pending_users', JSON.stringify([
+                { id: Date.now() + 1, name: 'Budi Santoso', email: 'budi@example.com', date: new Date().toLocaleDateString('id-ID') },
+                { id: Date.now() + 2, name: 'Siti Aminah', email: 'siti@example.com', date: new Date().toLocaleDateString('id-ID') },
+                { id: Date.now() + 3, name: 'Agus Pratama', email: 'agus@example.com', date: new Date().toLocaleDateString('id-ID') }
+            ]));
+        }
+
+        if (!localStorage.getItem('admin_active_users')) {
+            localStorage.setItem('admin_active_users', JSON.stringify([
+                { id: Date.now() + 4, name: 'User Premium', email: 'premium@melolo.com', key: 'melolo_prem_9x8y7z', limit: 1000 },
+                { id: Date.now() + 5, name: 'User Trial', email: 'trial@melolo.com', key: 'melolo_trial_1a2b3c', limit: 100 }
+            ]));
+        }
+
+        // --- State Management ---
+        let pendingUsers = JSON.parse(localStorage.getItem('admin_pending_users'));
+        let activeUsers = JSON.parse(localStorage.getItem('admin_active_users'));
+
+        function saveData() {
+            localStorage.setItem('admin_pending_users', JSON.stringify(pendingUsers));
+            localStorage.setItem('admin_active_users', JSON.stringify(activeUsers));
+            updateBadge();
+        }
+
+        function generateApiKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = 'melolo_key_';
+            for (let i = 0; i < 12; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // --- UI Rendering ---
+        function updateBadge() {
+            document.getElementById('pendingBadge').textContent = pendingUsers.length;
+        }
+
+        function renderPendingUsers() {
+            const tbody = document.getElementById('pendingTableBody');
+            tbody.innerHTML = '';
+            
+            if (pendingUsers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-500">Tidak ada pendaftaran baru.</td></tr>`;
+                return;
+            }
+
+            pendingUsers.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-800/50 transition-colors';
+                tr.innerHTML = `
+                    <td class="p-4 font-medium text-white">${user.name}</td>
+                    <td class="p-4 text-gray-400">${user.email}</td>
+                    <td class="p-4 text-gray-400">${user.date}</td>
+                    <td class="p-4 text-right space-x-2">
+                        <button onclick="approveUser(${user.id})" class="px-3 py-1.5 bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white border border-green-500/50 rounded-lg text-sm font-medium transition">Setuju</button>
+                        <button onclick="rejectUser(${user.id})" class="px-3 py-1.5 bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500 hover:text-white border border-yellow-500/50 rounded-lg text-sm font-medium transition">Tolak</button>
+                        <button onclick="deletePending(${user.id})" class="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/50 rounded-lg text-sm font-medium transition">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderActiveUsers() {
+            const tbody = document.getElementById('activeTableBody');
+            tbody.innerHTML = '';
+            
+            if (activeUsers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Tidak ada user aktif.</td></tr>`;
+                return;
+            }
+
+            activeUsers.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-800/50 transition-colors';
+                tr.innerHTML = `
+                    <td class="p-4 font-medium text-white">${user.name}</td>
+                    <td class="p-4 text-gray-400">${user.email}</td>
+                    <td class="p-4">
+                        <code class="px-2 py-1 bg-gray-950 text-brand-red rounded border border-gray-800 text-xs">${user.key}</code>
+                    </td>
+                    <td class="p-4">
+                        <input type="number" id="limit-${user.id}" value="${user.limit}" class="w-20 bg-gray-950 border border-gray-700 text-white rounded px-2 py-1 text-sm focus:outline-none focus:border-brand-red">
+                    </td>
+                    <td class="p-4 text-right space-x-2">
+                        <button onclick="updateLimit(${user.id})" class="px-3 py-1.5 bg-blue-500/20 text-blue-500 hover:bg-blue-500 hover:text-white border border-blue-500/50 rounded-lg text-sm font-medium transition">Simpan Limit</button>
+                        <button onclick="deleteActiveUser(${user.id})" class="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/50 rounded-lg text-sm font-medium transition">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- Actions ---
+        function approveUser(id) {
+            const userIndex = pendingUsers.findIndex(u => u.id === id);
+            if (userIndex > -1) {
+                const user = pendingUsers[userIndex];
+                // Move to active
+                activeUsers.push({
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    key: generateApiKey(),
+                    limit: 100 // Default limit
+                });
+                // Remove from pending
+                pendingUsers.splice(userIndex, 1);
+                saveData();
+                renderPendingUsers();
+                renderActiveUsers();
+                alert(`User ${user.name} berhasil disetujui! API Key telah dibuat.`);
+            }
+        }
+
+        function rejectUser(id) {
+            if(confirm('Tolak pendaftaran user ini?')) {
+                pendingUsers = pendingUsers.filter(u => u.id !== id);
+                saveData();
+                renderPendingUsers();
+            }
+        }
+
+        function deletePending(id) {
+            if(confirm('Hapus data pendaftaran ini dari daftar?')) {
+                pendingUsers = pendingUsers.filter(u => u.id !== id);
+                saveData();
+                renderPendingUsers();
+            }
+        }
+
+        function updateLimit(id) {
+            const input = document.getElementById(`limit-${id}`);
+            const newLimit = parseInt(input.value);
+            
+            if (isNaN(newLimit) || newLimit < 0) {
+                alert('Limit harus berupa angka positif.');
+                return;
+            }
+
+            const user = activeUsers.find(u => u.id === id);
+            if (user) {
+                user.limit = newLimit;
+                saveData();
+                alert(`Limit untuk ${user.name} berhasil diubah menjadi ${newLimit}.`);
+            }
+        }
+
+        function deleteActiveUser(id) {
+            if(confirm('PERINGATAN: Anda yakin ingin menghapus user aktif ini? API Key mereka tidak akan bisa digunakan lagi.')) {
+                activeUsers = activeUsers.filter(u => u.id !== id);
+                saveData();
+                renderActiveUsers();
+            }
+        }
+
+        // --- Navigation Logic ---
+        const views = ['profile', 'registrations', 'users'];
+        
+        function switchTab(tab) {
+            // Update Views
+            views.forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${v}`);
+                navBtn.classList.remove('bg-brand-red', 'text-white');
+                navBtn.classList.add('text-gray-400', 'hover:bg-gray-800', 'hover:text-white');
+            });
+            
+            document.getElementById(`view-${tab}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tab}`);
+            activeBtn.classList.remove('text-gray-400', 'hover:bg-gray-800', 'hover:text-white');
+            activeBtn.classList.add('bg-brand-red', 'text-white');
+
+            // Close mobile menu if open
+            const sidebar = document.getElementById('sidebar');
+            if(window.innerWidth < 768) {
+                sidebar.classList.add('hidden');
+            }
+        }
+
+        // Mobile Menu Toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        });
+
+        // Initialize
+        updateBadge();
+        renderPendingUsers();
+        renderActiveUsers();
+
+    </script>
+</body>
+</html>

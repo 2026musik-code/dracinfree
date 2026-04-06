@@ -11,6 +11,11 @@ const PORT = 3000;
 // Serve static files from the current directory
 app.use(express.static(__dirname));
 
+// Route for admin panel
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
 // Fallback to index.html for SPA routing
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
