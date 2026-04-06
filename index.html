@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katalog Drama Pendek</title>
+    <title>Melolo - Nonton Drama Pendek</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        netflix: {
+                        brand: {
                             red: '#E50914',
-                            black: '#141414',
-                            dark: '#181818'
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                            hover: '#334155'
                         }
                     }
                 }
@@ -21,224 +22,742 @@
         }
     </script>
     <style>
-        body { background-color: #141414; color: white; }
+        body { background-color: #0f172a; color: white; }
         /* Hide scrollbar for horizontal scroll */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
 </head>
 <body class="min-h-screen font-sans antialiased">
     <!-- Navbar -->
-    <nav class="sticky top-0 z-50 bg-netflix-black/90 backdrop-blur-sm border-b border-gray-800">
-        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <h1 class="text-2xl font-bold text-netflix-red tracking-wider">DRAMA<span class="text-white">FLIX</span></h1>
-            <form id="searchForm" class="w-full sm:w-auto flex flex-1 max-w-md">
-                <input type="text" id="bookIdInput" placeholder="Masukkan Book ID..." 
-                    class="w-full bg-gray-800 text-white px-4 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-netflix-red"
-                    value="7515442340299803664" required>
-                <button type="submit" class="bg-netflix-red hover:bg-red-700 px-4 py-2 rounded-r-md font-semibold transition">
-                    Cari
+    <nav class="sticky top-0 z-50 bg-brand-dark/90 backdrop-blur-md border-b border-gray-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <button id="backBtn" class="hidden text-gray-300 hover:text-white p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <h1 id="logoText" class="text-2xl font-black text-brand-red tracking-wider cursor-pointer">MELOLO<span class="text-white">TV</span></h1>
+            </div>
+            <form id="searchForm" class="hidden md:flex flex-1 max-w-sm">
+                <input type="text" id="searchInput" placeholder="Cari judul drama..." 
+                    class="w-full bg-gray-800 text-white px-4 py-2 rounded-l-full focus:outline-none focus:ring-1 focus:ring-brand-red text-sm" required>
+                <button type="submit" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-r-full transition text-sm">
+                    <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </button>
             </form>
+            <button id="settingsBtn" class="hidden md:block text-gray-400 hover:text-white p-2 rounded-full hover:bg-gray-800 transition ml-2" title="Pengaturan API">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </button>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="max-w-5xl mx-auto px-4 py-8">
-        <!-- Loading State -->
-        <div id="loading" class="hidden text-center py-12">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-netflix-red mx-auto"></div>
-            <p class="mt-4 text-gray-400">Memuat data drama...</p>
-        </div>
+    <!-- Loading Overlay -->
+    <div id="globalLoading" class="fixed inset-0 z-[100] bg-brand-dark/80 backdrop-blur-sm flex items-center justify-center hidden">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-red"></div>
+    </div>
 
-        <!-- Error State -->
-        <div id="error" class="hidden bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-md mb-6">
-        </div>
-
-        <!-- Drama Info -->
-        <div id="dramaInfo" class="hidden flex flex-col md:flex-row gap-8 mb-12">
-            <div class="w-full md:w-1/3 lg:w-1/4 flex-shrink-0">
-                <img id="dramaCover" src="" alt="Cover" class="w-full rounded-lg shadow-2xl shadow-black/50 object-cover aspect-[3/4]">
+    <!-- HOME VIEW -->
+    <main id="homeView" class="max-w-7xl mx-auto px-4 py-6 pb-20">
+        <!-- Hero Carousel -->
+        <div id="heroSection" class="mb-4 md:mb-8">
+            <div id="heroContainer" class="flex overflow-x-auto gap-4 pb-2 no-scrollbar snap-x snap-mandatory">
+                <!-- Hero skeletons -->
+                <div class="w-[90vw] md:w-[800px] flex-shrink-0 snap-center aspect-[16/9] md:aspect-[21/9] bg-gray-800 animate-pulse rounded-2xl"></div>
             </div>
-            <div class="flex-1 flex flex-col justify-center">
-                <h2 id="dramaTitle" class="text-3xl md:text-5xl font-bold mb-4 text-white"></h2>
-                <div class="flex flex-wrap items-center gap-3 mb-6">
-                    <span id="dramaStatus" class="px-2 py-1 bg-green-600 text-xs font-bold rounded-sm uppercase tracking-wider"></span>
-                    <span id="dramaEps" class="text-gray-300 text-sm font-medium"></span>
+        </div>
+
+        <div id="categoriesContainer" class="space-y-6 md:space-y-8">
+            <!-- Categories will be injected here -->
+        </div>
+    </main>
+
+    <!-- DETAIL VIEW -->
+    <main id="detailView" class="max-w-7xl mx-auto px-4 py-6 hidden pb-20">
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Left: Video Player & Info -->
+            <div class="w-full lg:w-2/3 flex flex-col gap-4">
+                <!-- Video Player -->
+                <div class="relative w-full aspect-[9/16] sm:aspect-video bg-black rounded-xl overflow-hidden shadow-2xl border border-gray-800 max-h-[70vh] sm:max-h-none flex justify-center items-center">
+                    <div id="videoLoading" class="absolute inset-0 flex items-center justify-center bg-black/80 z-10">
+                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-red"></div>
+                    </div>
+                    <video id="player" controls class="w-full h-full hidden object-contain" playsinline></video>
+                    <div id="videoError" class="hidden absolute inset-0 flex items-center justify-center text-red-500 p-4 text-center bg-black/90 z-20"></div>
                 </div>
-                <div id="dramaTags" class="flex flex-wrap gap-2 mb-6"></div>
-                <p id="dramaIntro" class="text-gray-300 leading-relaxed text-sm md:text-base"></p>
-            </div>
-        </div>
 
-        <!-- Episodes List -->
-        <div id="episodesContainer" class="hidden">
-            <h3 class="text-2xl font-bold mb-6 border-l-4 border-netflix-red pl-3">Daftar Episode</h3>
-            <div id="episodesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                <!-- Cards will be injected here -->
+                <!-- Quality Selector & Current Ep Info -->
+                <div class="flex justify-between items-center bg-brand-card p-3 rounded-lg border border-gray-800">
+                    <h3 id="currentEpTitle" class="font-bold text-brand-red line-clamp-1 flex-1 pr-4">Pilih Episode</h3>
+                    <select id="qualitySelect" class="bg-gray-800 text-white text-xs rounded px-2 py-1 border border-gray-700 focus:outline-none focus:border-brand-red hidden">
+                    </select>
+                </div>
+
+                <!-- Drama Info -->
+                <div class="bg-brand-card p-4 md:p-6 rounded-xl border border-gray-800 mt-2">
+                    <h2 id="dramaTitle" class="text-2xl md:text-3xl font-bold mb-2 text-white"></h2>
+                    <div class="flex flex-wrap items-center gap-2 mb-4">
+                        <span id="dramaStatus" class="px-2 py-0.5 bg-green-600/20 text-green-400 border border-green-600/30 text-xs font-bold rounded uppercase"></span>
+                        <span id="dramaEps" class="text-gray-400 text-sm"></span>
+                    </div>
+                    <div id="dramaTags" class="flex flex-wrap gap-2 mb-4"></div>
+                    <p id="dramaIntro" class="text-gray-300 text-sm leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- Right: Episode List (5 columns on desktop, 3 on mobile) -->
+            <div class="w-full lg:w-1/3">
+                <div class="bg-brand-card rounded-xl border border-gray-800 p-4 sticky top-20 max-h-[85vh] flex flex-col">
+                    <h3 class="text-lg font-bold mb-4 border-l-4 border-brand-red pl-3 flex-shrink-0">Daftar Episode</h3>
+                    
+                    <!-- Episodes Grid (5 columns as requested) -->
+                    <div id="episodesGrid" class="grid grid-cols-5 gap-2 overflow-y-auto pr-2 custom-scrollbar flex-1 content-start">
+                        <!-- Episode buttons will be injected here -->
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Video Modal -->
-    <div id="videoModal" class="fixed inset-0 z-[100] bg-black/95 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="relative w-full max-w-4xl bg-netflix-dark rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-            <div class="flex justify-between items-center p-4 border-b border-gray-800">
-                <h3 id="modalTitle" class="font-bold text-lg truncate pr-4">Memuat Video...</h3>
-                <button id="closeModal" class="text-gray-400 hover:text-white transition p-1">
+    <!-- CATEGORIES VIEW -->
+    <main id="categoriesView" class="hidden max-w-7xl mx-auto px-4 py-6 pb-24">
+        <h2 class="text-2xl font-bold mb-6 border-l-4 border-brand-red pl-3 text-white">Semua Kategori</h2>
+        <div id="allCategoriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <!-- Categories injected here -->
+        </div>
+    </main>
+
+    <!-- SEARCH VIEW -->
+    <main id="searchView" class="hidden max-w-7xl mx-auto px-4 py-6 pb-24">
+        <div class="mb-6">
+            <div class="relative">
+                <input type="text" id="mainSearchInput" class="w-full bg-gray-900 border border-gray-700 text-white rounded-xl px-4 py-3 pl-12 focus:outline-none focus:border-brand-red" placeholder="Ketik judul drama untuk mencari...">
+                <svg class="w-6 h-6 text-gray-500 absolute left-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+        </div>
+        <div id="mainSearchResults" class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
+            <div class="col-span-full text-center text-gray-500 py-10">Mulai mengetik untuk mencari drama...</div>
+        </div>
+    </main>
+
+    <!-- PROFILE VIEW -->
+    <main id="profileView" class="hidden max-w-7xl mx-auto px-4 py-6 pb-24">
+        <!-- Profile Info -->
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800 text-center mb-6 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-brand-red/20 to-brand-dark"></div>
+            <div class="relative z-10">
+                <div class="w-24 h-24 bg-gray-800 rounded-full mx-auto mb-4 flex items-center justify-center border-4 border-brand-red shadow-lg">
+                    <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                </div>
+                <h2 class="text-xl font-bold text-white mb-1">Pengguna Melolo</h2>
+                <p class="text-gray-400 text-sm mb-3">user@melolo.com</p>
+                <span class="inline-block px-4 py-1 bg-brand-red/20 text-brand-red border border-brand-red/50 rounded-full text-xs font-bold uppercase tracking-wider">Trial Member</span>
+            </div>
+        </div>
+        
+        <!-- API Settings & Usage -->
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800 mb-6">
+            <h3 class="font-bold text-lg text-white mb-4 border-l-4 border-brand-red pl-3">Informasi API Key</h3>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-300 mb-2">API Key Anda</label>
+                <input type="text" id="profileApiKeyInput" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red mb-2" placeholder="Masukkan API Key...">
+                <p class="text-xs text-gray-500">Biarkan kosong untuk menggunakan API Key bawaan (gratis/terbatas).</p>
+            </div>
+
+            <!-- Usage Bars -->
+            <div class="space-y-4 mb-6 p-4 bg-gray-800/50 rounded-xl border border-gray-700/50">
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-gray-300">Permintaan Key (Usage)</span>
+                        <span class="text-brand-red font-bold">85 / 100</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-brand-red h-2 rounded-full" style="width: 85%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-gray-300">Limit Permintaan Key</span>
+                        <span class="text-gray-400">100 / Hari</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-gray-500 h-2 rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button id="profileSaveSettingsBtn" class="w-full sm:w-1/2 bg-brand-red hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-lg transition text-sm">Simpan Key</button>
+                <a href="https://wa.me/6287733745059?text=Halo%20Admin,%20saya%20ingin%20upgrade%20limit%20API%20Key%20Melolo" target="_blank" class="w-full sm:w-1/2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold py-2.5 px-4 rounded-lg transition text-sm flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
+                    Upgrade Limit
+                </a>
+            </div>
+            
+            <div class="mt-4">
+                <button id="profileClearCacheBtn" class="w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2 px-4 rounded-lg transition text-sm border border-gray-700">Hapus Cache Aplikasi</button>
+            </div>
+        </div>
+
+        <!-- Contact / Social -->
+        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800 text-center">
+            <h3 class="font-bold text-sm text-gray-400 mb-4 uppercase tracking-wider">Hubungi Kami</h3>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <!-- WhatsApp -->
+                <a href="https://wa.me/6287733745059" target="_blank" class="flex items-center justify-center gap-2 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] border border-[#25D366]/30 px-6 py-3 rounded-xl transition w-full sm:w-auto">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                    <span class="font-bold">WhatsApp</span>
+                </a>
+                <!-- Telegram -->
+                <a href="https://t.me/otomotif_digital" target="_blank" class="flex items-center justify-center gap-2 bg-[#0088cc]/10 hover:bg-[#0088cc]/20 text-[#0088cc] border border-[#0088cc]/30 px-6 py-3 rounded-xl transition w-full sm:w-auto">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    <span class="font-bold">Telegram</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav id="bottomNav" class="fixed bottom-0 w-full bg-brand-dark/95 backdrop-blur-md border-t border-gray-800 z-50 pb-safe md:hidden">
+        <div class="flex justify-around items-center max-w-7xl mx-auto">
+            <button id="navHome" class="flex flex-col items-center p-3 text-brand-red w-1/4 transition-colors" onclick="switchTab('home')">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <span class="text-[10px] font-medium">Dasbor</span>
+            </button>
+            <button id="navCategories" class="flex flex-col items-center p-3 text-gray-500 hover:text-gray-300 w-1/4 transition-colors" onclick="switchTab('categories')">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                <span class="text-[10px] font-medium">Kategori</span>
+            </button>
+            <button id="navSearch" class="flex flex-col items-center p-3 text-gray-500 hover:text-gray-300 w-1/4 transition-colors" onclick="switchTab('search')">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <span class="text-[10px] font-medium">Cari</span>
+            </button>
+            <button id="navProfile" class="flex flex-col items-center p-3 text-gray-500 hover:text-gray-300 w-1/4 transition-colors" onclick="switchTab('profile')">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <span class="text-[10px] font-medium">Profil</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-brand-card w-full max-w-md rounded-xl border border-gray-800 shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-white">Pengaturan API</h3>
+                <button id="closeSettingsBtn" class="text-gray-400 hover:text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div class="relative w-full aspect-video bg-black flex items-center justify-center">
-                <div id="videoLoading" class="absolute inset-0 flex items-center justify-center">
-                    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-netflix-red"></div>
+            <div class="p-6">
+                <label class="block text-sm font-medium text-gray-300 mb-2">API Key Melolo</label>
+                <input type="text" id="apiKeyInput" class="w-full bg-gray-900 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red mb-4" placeholder="Masukkan API Key...">
+                <p class="text-xs text-gray-500 mb-6">Biarkan kosong untuk menggunakan API Key bawaan (gratis/terbatas).</p>
+                <div class="flex gap-2">
+                    <button id="clearCacheBtn" class="w-1/3 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-2 rounded-lg transition text-xs sm:text-sm">Hapus Cache</button>
+                    <button id="saveSettingsBtn" class="w-2/3 bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm sm:text-base">Simpan & Muat Ulang</button>
                 </div>
-                <video id="player" controls class="w-full h-full hidden" playsinline></video>
-                <div id="videoError" class="hidden absolute inset-0 flex items-center justify-center text-red-500 p-4 text-center"></div>
-            </div>
-            <div class="p-4 bg-netflix-dark flex justify-between items-center">
-                <select id="qualitySelect" class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700 focus:outline-none focus:border-netflix-red hidden">
-                </select>
-                <div id="modalLikes" class="text-gray-400 text-sm flex items-center gap-1"></div>
             </div>
         </div>
     </div>
 
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+
     <script>
-        const API_KEY = 'fdv_BHBuTCSNZCmuG6F5opa6TQ';
+        const DEFAULT_API_KEY = 'fdv_BHBuTCSNZCmuG6F5opa6TQ'; // API Key bawaan
+        let API_KEY = localStorage.getItem('melolo_api_key') || DEFAULT_API_KEY;
         const BASE_URL = 'https://api.ferdev.my.id/internet/melolo';
 
+        // Categories to simulate Home Page
+        const CATEGORIES = [
+            { id: 'populer', title: 'Terpopuler Saat Ini', query: 'ceo' },
+            { id: 'romansa', title: 'Romansa Bikin Baper', query: 'cinta' },
+            { id: 'menantu', title: 'Menantu Diremehkan', query: 'menantu' },
+            { id: 'keluarga', title: 'Drama Keluarga', query: 'keluarga' },
+            { id: 'dendam', title: 'Kisah Balas Dendam', query: 'dendam' },
+            { id: 'istri', title: 'Istri Tersakiti', query: 'istri' },
+            { id: 'miliarder', title: 'Miliarder Menyamar', query: 'miliarder' },
+            { id: 'bos', title: 'Bos Arogan', query: 'bos' },
+            { id: 'dokter', title: 'Dokter Jenius', query: 'dokter' }
+        ];
+
         // Elements
-        const form = document.getElementById('searchForm');
-        const input = document.getElementById('bookIdInput');
-        const loading = document.getElementById('loading');
-        const errorDiv = document.getElementById('error');
-        const dramaInfo = document.getElementById('dramaInfo');
-        const episodesContainer = document.getElementById('episodesContainer');
-        const episodesGrid = document.getElementById('episodesGrid');
+        const views = {
+            home: document.getElementById('homeView'),
+            categories: document.getElementById('categoriesView'),
+            search: document.getElementById('searchView'),
+            profile: document.getElementById('profileView'),
+            detail: document.getElementById('detailView')
+        };
         
-        const modal = document.getElementById('videoModal');
+        const navBtns = {
+            home: document.getElementById('navHome'),
+            categories: document.getElementById('navCategories'),
+            search: document.getElementById('navSearch'),
+            profile: document.getElementById('navProfile')
+        };
+        
+        const bottomNav = document.getElementById('bottomNav');
+        
+        const heroContainer = document.getElementById('heroContainer');
+        const backBtn = document.getElementById('backBtn');
+        const logoText = document.getElementById('logoText');
+        const globalLoading = document.getElementById('globalLoading');
+        const searchForm = document.getElementById('searchForm');
+        const searchInput = document.getElementById('searchInput');
+        
+        // New Search Elements
+        const mainSearchInput = document.getElementById('mainSearchInput');
+        const mainSearchResults = document.getElementById('mainSearchResults');
+        
+        // Settings Elements
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsModal = document.getElementById('settingsModal');
+        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        const clearCacheBtn = document.getElementById('clearCacheBtn');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        
+        // Profile Settings Elements
+        const profileApiKeyInput = document.getElementById('profileApiKeyInput');
+        const profileSaveSettingsBtn = document.getElementById('profileSaveSettingsBtn');
+        const profileClearCacheBtn = document.getElementById('profileClearCacheBtn');
+        
+        // Player Elements
         const player = document.getElementById('player');
-        const closeModalBtn = document.getElementById('closeModal');
         const videoLoading = document.getElementById('videoLoading');
         const videoError = document.getElementById('videoError');
         const qualitySelect = document.getElementById('qualitySelect');
+        const currentEpTitle = document.getElementById('currentEpTitle');
+        const episodesGrid = document.getElementById('episodesGrid');
 
         let currentStreamData = null;
+        let activeEpisodeBtn = null;
 
         // Trik Nina: Handle HEIC to WEBP
         function handleHeic(url) {
             if (!url) return '';
-            return url.replace(/\.heic$/i, '.webp');
+            // Karena CDN menggunakan signature, mengubah ekstensi langsung akan menyebabkan error 403.
+            // Solusi: Gunakan image proxy publik (wsrv.nl) untuk mengonversi HEIC ke WEBP secara on-the-fly.
+            if (url.toLowerCase().includes('.heic')) {
+                return `https://wsrv.nl/?url=${encodeURIComponent(url)}&output=webp`;
+            }
+            return url;
         }
 
-        function formatDuration(seconds) {
-            const m = Math.floor(seconds / 60);
-            const s = seconds % 60;
-            return `${m}:${s.toString().padStart(2, '0')}`;
-        }
-
-        function formatNumber(num) {
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-            return num;
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const bookId = input.value.trim();
-            if (!bookId) return;
-
-            // Reset UI
-            errorDiv.classList.add('hidden');
-            dramaInfo.classList.add('hidden');
-            episodesContainer.classList.add('hidden');
-            loading.classList.remove('hidden');
-
-            try {
-                const res = await fetch(`${BASE_URL}/detail?bookId=${bookId}&apikey=${API_KEY}`);
-                const data = await res.json();
-
-                if (!data.success || !data.result) {
-                    throw new Error(data.message || 'Drama tidak ditemukan.');
+        // --- Settings Logic ---
+        function clearCache() {
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('melolo_cache_')) {
+                    localStorage.removeItem(key);
                 }
+            });
+            alert('Cache berhasil dihapus! Data akan dimuat ulang dari server.');
+            settingsModal.classList.add('hidden');
+            switchTab('home');
+            loadHome();
+        }
 
-                renderDrama(data.result);
+        function saveSettings(newKey) {
+            if (newKey) {
+                localStorage.setItem('melolo_api_key', newKey);
+                API_KEY = newKey;
+            } else {
+                localStorage.removeItem('melolo_api_key');
+                API_KEY = DEFAULT_API_KEY;
+            }
+            
+            // Hapus cache agar data di-fetch ulang dengan key baru
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('melolo_cache_')) {
+                    localStorage.removeItem(key);
+                }
+            });
+            
+            settingsModal.classList.add('hidden');
+            // Reload home to apply new key
+            switchTab('home');
+            loadHome();
+        }
+
+        settingsBtn.addEventListener('click', () => {
+            apiKeyInput.value = localStorage.getItem('melolo_api_key') || '';
+            settingsModal.classList.remove('hidden');
+        });
+
+        closeSettingsBtn.addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+        });
+
+        clearCacheBtn.addEventListener('click', clearCache);
+        profileClearCacheBtn.addEventListener('click', clearCache);
+
+        saveSettingsBtn.addEventListener('click', () => saveSettings(apiKeyInput.value.trim()));
+        profileSaveSettingsBtn.addEventListener('click', () => saveSettings(profileApiKeyInput.value.trim()));
+
+        // --- Navigation ---
+        function switchTab(tabName) {
+            // Hide all views
+            Object.values(views).forEach(view => {
+                if(view) view.classList.add('hidden');
+            });
+            
+            // Show selected view
+            if(views[tabName]) views[tabName].classList.remove('hidden');
+            
+            // Update bottom nav UI
+            Object.keys(navBtns).forEach(key => {
+                if(navBtns[key]) {
+                    if(key === tabName) {
+                        navBtns[key].classList.remove('text-gray-500');
+                        navBtns[key].classList.add('text-brand-red');
+                    } else {
+                        navBtns[key].classList.add('text-gray-500');
+                        navBtns[key].classList.remove('text-brand-red');
+                    }
+                }
+            });
+
+            // Show/hide bottom nav and back button
+            if(tabName === 'detail') {
+                bottomNav.classList.add('hidden');
+                backBtn.classList.remove('hidden');
+            } else {
+                bottomNav.classList.remove('hidden');
+                backBtn.classList.add('hidden');
+                player.pause();
+                player.src = '';
+            }
+            
+            // Special handling for profile tab
+            if(tabName === 'profile') {
+                profileApiKeyInput.value = localStorage.getItem('melolo_api_key') || '';
+            }
+            
+            // Special handling for categories tab
+            if(tabName === 'categories' && document.getElementById('allCategoriesGrid').children.length === 0) {
+                loadAllCategories();
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        function showHome() {
+            switchTab('home');
+        }
+
+        function showDetail() {
+            switchTab('detail');
+        }
+
+        backBtn.addEventListener('click', showHome);
+        logoText.addEventListener('click', () => {
+            searchInput.value = '';
+            showHome();
+        });
+
+        // --- Fetch Data (with Caching) ---
+        async function fetchAPI(endpoint) {
+            const cacheKey = 'melolo_cache_' + endpoint;
+            const cached = localStorage.getItem(cacheKey);
+            
+            // Gunakan cache jika ada dan umurnya kurang dari 2 jam (7200000 ms)
+            if (cached) {
+                try {
+                    const parsedCache = JSON.parse(cached);
+                    if (Date.now() - parsedCache.timestamp < 7200000) {
+                        return parsedCache.data;
+                    }
+                } catch (e) {
+                    localStorage.removeItem(cacheKey);
+                }
+            }
+
+            const res = await fetch(`${BASE_URL}${endpoint}&apikey=${API_KEY}`);
+            const data = await res.json();
+            if (!data.success) throw new Error(data.message || 'API Error');
+            
+            // Simpan ke cache
+            try {
+                localStorage.setItem(cacheKey, JSON.stringify({
+                    timestamp: Date.now(),
+                    data: data.result
+                }));
+            } catch (e) {
+                // Abaikan jika storage penuh
+            }
+
+            return data.result;
+        }
+
+        // --- Home Page Logic ---
+        async function loadHome() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = ''; // Clear
+            heroContainer.innerHTML = ''; // Clear hero
+
+            // Create hero skeletons
+            for(let i=0; i<3; i++) {
+                heroContainer.innerHTML += `<div class="w-[90vw] md:w-[800px] flex-shrink-0 snap-center aspect-[16/9] md:aspect-[21/9] bg-gray-800 animate-pulse rounded-2xl"></div>`;
+            }
+
+            // Create all section skeletons first
+            for (const cat of CATEGORIES) {
+                const section = document.createElement('div');
+                // Desain kotak mewah untuk setiap kategori
+                section.className = 'bg-gradient-to-br from-gray-900 to-[#0a0f1a] border border-gray-800/80 rounded-2xl p-4 md:p-6 shadow-2xl relative overflow-hidden';
+                section.innerHTML = `
+                    <!-- Efek cahaya halus di sudut -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-red/5 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="flex items-center justify-between mb-4 relative z-10">
+                        <h2 class="text-lg md:text-xl font-bold border-l-4 border-brand-red pl-3 text-white tracking-wide">${cat.title}</h2>
+                        <span class="text-[10px] md:text-xs text-gray-500 uppercase tracking-widest font-semibold">Koleksi</span>
+                    </div>
+                    <div class="flex overflow-x-auto gap-3 md:gap-4 pb-2 no-scrollbar snap-x snap-mandatory relative z-10" id="row-${cat.id}">
+                        <!-- Skeleton loaders -->
+                        ${Array(6).fill(0).map(() => `<div class="w-28 md:w-36 flex-shrink-0 snap-start aspect-[3/4] bg-gray-800 animate-pulse rounded-lg shadow-md"></div>`).join('')}
+                    </div>
+                `;
+                container.appendChild(section);
+            }
+
+            // Fetch Hero Data
+            try {
+                const heroDramas = await fetchAPI(`/search?query=terbaru`);
+                heroContainer.innerHTML = '';
+                if (heroDramas && heroDramas.length > 0) {
+                    heroDramas.slice(0, 6).forEach(drama => {
+                        if (drama.book_id) heroContainer.appendChild(createHeroCard(drama));
+                    });
+                }
             } catch (err) {
-                errorDiv.textContent = err.message;
-                errorDiv.classList.remove('hidden');
+                console.error('Error loading hero:', err);
+                heroContainer.innerHTML = '<p class="text-gray-500 px-4">Gagal memuat sorotan.</p>';
+            }
+
+            // Fetch data sequentially to avoid hitting rate limits too fast
+            for (const cat of CATEGORIES) {
+                try {
+                    const dramas = await fetchAPI(`/search?query=${cat.query}`);
+                    const row = document.getElementById(`row-${cat.id}`);
+                    row.innerHTML = ''; // Clear skeletons
+                    
+                    if(!dramas || dramas.length === 0) {
+                        row.innerHTML = '<p class="text-gray-500 text-sm px-2">Tidak ada data.</p>';
+                        continue;
+                    }
+
+                    dramas.forEach(drama => {
+                        if (!drama.book_id) return;
+                        const card = createPosterCard(drama);
+                        row.appendChild(card);
+                    });
+                    
+                    // Add a small delay between requests to help with API rate limits
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                } catch (err) {
+                    console.error(`Error loading ${cat.title}:`, err);
+                    const row = document.getElementById(`row-${cat.id}`);
+                    row.innerHTML = `<div class="w-full px-2 py-4 bg-red-900/20 border border-red-900/50 rounded-lg text-red-400 text-sm">
+                        <p class="font-bold mb-1">Gagal memuat kategori ini.</p>
+                        <p>${err.message}</p>
+                    </div>`;
+                }
+            }
+        }
+
+        function createHeroCard(drama) {
+            const card = document.createElement('div');
+            card.className = 'w-[90vw] md:w-[800px] flex-shrink-0 snap-center cursor-pointer relative rounded-2xl overflow-hidden aspect-[3/4] sm:aspect-[16/9] md:aspect-[21/9] group bg-gray-900 border border-gray-800 hover:border-brand-red transition-colors';
+            card.onclick = () => openDrama(drama.book_id);
+            
+            card.innerHTML = `
+                <!-- Background Image (Fills entire card on mobile, blurred on desktop) -->
+                <img src="${handleHeic(drama.cover)}" class="absolute inset-0 w-full h-full object-cover sm:opacity-30 sm:blur-xl sm:scale-110" alt="bg" loading="lazy">
+                
+                <!-- Gradient Overlay (Darker at bottom for text readability) -->
+                <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/60 to-transparent sm:from-brand-dark sm:via-brand-dark/80"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-brand-dark/20 to-transparent sm:from-brand-dark sm:via-brand-dark/50"></div>
+                
+                <!-- Content -->
+                <div class="absolute inset-0 p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row justify-end sm:items-center gap-4 sm:gap-6 md:gap-8">
+                    <!-- Poster Thumbnail (Hidden on mobile, visible on desktop) -->
+                    <img src="${handleHeic(drama.cover)}" class="hidden sm:block w-32 md:w-48 rounded-xl shadow-2xl aspect-[3/4] object-cover border border-gray-700 group-hover:scale-105 transition-transform duration-300" alt="poster" loading="lazy">
+                    
+                    <!-- Text -->
+                    <div class="flex-1 flex flex-col justify-end sm:justify-center z-10">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2 py-1 bg-brand-red text-white text-[10px] md:text-xs font-bold rounded uppercase tracking-wider shadow-lg">Sorotan</span>
+                        </div>
+                        <h2 class="text-2xl sm:text-2xl md:text-4xl font-black text-white mb-2 line-clamp-2 leading-tight drop-shadow-lg">${drama.title}</h2>
+                        <p class="text-gray-200 sm:text-gray-300 text-sm md:text-base line-clamp-2 md:line-clamp-3 mb-4 max-w-xl drop-shadow-md">${drama.sinopsis || 'Saksikan drama pendek eksklusif ini hanya di Melolo TV.'}</p>
+                        <button class="bg-white text-black px-4 py-2 md:px-6 md:py-3 rounded-lg font-bold flex items-center justify-center sm:justify-start gap-2 hover:bg-gray-200 transition shadow-xl w-full sm:w-auto">
+                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            Putar Sekarang
+                        </button>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        function createPosterCard(drama) {
+            const card = document.createElement('div');
+            card.className = 'w-28 md:w-36 flex-shrink-0 snap-start cursor-pointer group';
+            card.onclick = () => openDrama(drama.book_id);
+            
+            card.innerHTML = `
+                <div class="relative aspect-[3/4] rounded-lg overflow-hidden mb-2 bg-gray-800 border border-gray-800 group-hover:border-brand-red transition-colors">
+                    <img src="${handleHeic(drama.cover)}" alt="${drama.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48L3N2Zz4='">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div class="w-8 h-8 bg-brand-red/90 rounded-full flex items-center justify-center shadow-lg">
+                            <svg class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="text-xs md:text-sm font-medium text-gray-300 group-hover:text-white line-clamp-2 leading-tight">${drama.title}</h3>
+            `;
+            return card;
+        }
+
+        // --- Search Logic ---
+        async function performSearch(query, gridElement) {
+            if (!query) return;
+            
+            globalLoading.classList.remove('hidden');
+            gridElement.innerHTML = '';
+            
+            try {
+                const dramas = await fetchAPI(`/search?query=${encodeURIComponent(query)}`);
+                if (dramas && dramas.length > 0) {
+                    dramas.forEach(drama => {
+                        if (drama.book_id) gridElement.appendChild(createPosterCard(drama));
+                    });
+                } else {
+                    gridElement.innerHTML = '<p class="col-span-full text-center py-10 text-gray-400">Tidak ada hasil ditemukan.</p>';
+                }
+            } catch (err) {
+                gridElement.innerHTML = `<p class="col-span-full text-center py-10 text-red-500">Gagal melakukan pencarian: ${err.message}</p>`;
             } finally {
-                loading.classList.add('hidden');
+                globalLoading.classList.add('hidden');
+            }
+        }
+
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (!query) return;
+            
+            switchTab('search');
+            mainSearchInput.value = query;
+            await performSearch(query, mainSearchResults);
+        });
+
+        mainSearchInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                const query = mainSearchInput.value.trim();
+                await performSearch(query, mainSearchResults);
             }
         });
 
-        function renderDrama(drama) {
-            // Info
-            document.getElementById('dramaCover').src = handleHeic(drama.cover);
-            document.getElementById('dramaTitle').textContent = drama.title;
-            document.getElementById('dramaStatus').textContent = drama.status || 'Ongoing';
-            document.getElementById('dramaEps').textContent = `${drama.total_episodes} Episode`;
-            document.getElementById('dramaIntro').textContent = drama.intro;
-
-            // Tags
-            const tagsContainer = document.getElementById('dramaTags');
-            tagsContainer.innerHTML = '';
-            if (drama.tags && drama.tags.length) {
-                drama.tags.forEach(tag => {
-                    const span = document.createElement('span');
-                    span.className = 'px-2 py-1 bg-gray-800 text-gray-300 text-xs rounded-md border border-gray-700';
-                    span.textContent = tag;
-                    tagsContainer.appendChild(span);
-                });
+        // --- Categories Logic ---
+        async function loadAllCategories() {
+            const grid = document.getElementById('allCategoriesGrid');
+            grid.innerHTML = '';
+            
+            for (const cat of CATEGORIES) {
+                const card = document.createElement('div');
+                card.className = 'bg-gray-800 rounded-xl p-4 flex items-center justify-center text-center cursor-pointer hover:bg-gray-700 hover:border-brand-red border border-gray-700 transition-colors h-24 shadow-md';
+                card.innerHTML = `<h3 class="font-bold text-white text-sm md:text-base">${cat.title}</h3>`;
+                card.onclick = () => {
+                    switchTab('search');
+                    mainSearchInput.value = cat.query;
+                    performSearch(cat.query, mainSearchResults);
+                };
+                grid.appendChild(card);
             }
-
-            // Episodes
-            episodesGrid.innerHTML = '';
-            if (drama.episodes && drama.episodes.length) {
-                drama.episodes.forEach(ep => {
-                    const card = document.createElement('div');
-                    card.className = 'group relative bg-gray-800 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-netflix-red transition-all duration-300 transform hover:-translate-y-1';
-                    card.onclick = () => openPlayer(ep);
-                    
-                    card.innerHTML = `
-                        <div class="aspect-video relative overflow-hidden bg-gray-900">
-                            <img src="${handleHeic(ep.cover)}" alt="Ep ${ep.episode}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" loading="lazy">
-                            <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors"></div>
-                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div class="w-10 h-10 bg-netflix-red/90 rounded-full flex items-center justify-center shadow-lg">
-                                    <svg class="w-5 h-5 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                </div>
-                            </div>
-                            <div class="absolute bottom-1.5 right-1.5 bg-black/80 px-1.5 py-0.5 rounded text-[10px] font-medium text-white">
-                                ${formatDuration(ep.duration)}
-                            </div>
-                            <div class="absolute top-1.5 left-1.5 bg-netflix-red px-1.5 py-0.5 rounded text-[10px] font-bold text-white">
-                                EP ${ep.episode}
-                            </div>
-                        </div>
-                        <div class="p-2.5">
-                            <h4 class="text-sm font-medium text-gray-200 line-clamp-1 mb-1 group-hover:text-white">${ep.title || 'Episode ' + ep.episode}</h4>
-                            <div class="flex items-center text-xs text-gray-400 gap-1">
-                                <svg class="w-3.5 h-3.5 text-netflix-red" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
-                                ${formatNumber(ep.likes)}
-                            </div>
-                        </div>
-                    `;
-                    episodesGrid.appendChild(card);
-                });
-            }
-
-            dramaInfo.classList.remove('hidden');
-            episodesContainer.classList.remove('hidden');
         }
 
-        async function openPlayer(ep) {
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        // --- Detail & Player Logic ---
+        async function openDrama(bookId) {
+            globalLoading.classList.remove('hidden');
             
-            document.getElementById('modalTitle').textContent = `Episode ${ep.episode}: ${ep.title || ''}`;
-            document.getElementById('modalLikes').innerHTML = `<svg class="w-4 h-4 text-netflix-red" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg> ${formatNumber(ep.likes)}`;
+            try {
+                const drama = await fetchAPI(`/detail?bookId=${bookId}`);
+                
+                // Render Info
+                document.getElementById('dramaTitle').textContent = drama.title;
+                document.getElementById('dramaStatus').textContent = drama.status || 'Ongoing';
+                document.getElementById('dramaEps').textContent = `${drama.total_episodes} Episode`;
+                document.getElementById('dramaIntro').textContent = drama.intro;
+
+                // Tags
+                const tagsContainer = document.getElementById('dramaTags');
+                tagsContainer.innerHTML = '';
+                if (drama.tags) {
+                    drama.tags.forEach(tag => {
+                        const span = document.createElement('span');
+                        span.className = 'px-2 py-1 bg-gray-800 text-gray-300 text-[10px] rounded border border-gray-700';
+                        span.textContent = tag;
+                        tagsContainer.appendChild(span);
+                    });
+                }
+
+                <!-- Render Episodes Grid (5 columns) -->
+                episodesGrid.innerHTML = '';
+                if (drama.episodes && drama.episodes.length) {
+                    drama.episodes.forEach((ep, index) => {
+                        const btn = document.createElement('button');
+                        // Memperbaiki desain tombol agar teks berada tepat di tengah kotak
+                        btn.className = 'ep-btn aspect-square bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md text-sm sm:text-base font-bold flex items-center justify-center border border-gray-700 transition-colors relative overflow-hidden group';
+                        
+                        // Add lock icon if it's a premium episode (simulated, assuming we can play all for now)
+                        btn.innerHTML = `
+                            <span class="z-10">${ep.episode}</span>
+                            <div class="absolute inset-0 bg-brand-red opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                        `;
+                        
+                        btn.onclick = () => playEpisode(ep, btn);
+                        episodesGrid.appendChild(btn);
+                    });
+
+                    // Auto play episode 1
+                    showDetail();
+                    const firstEpBtn = episodesGrid.firstChild;
+                    playEpisode(drama.episodes[0], firstEpBtn);
+                } else {
+                    episodesGrid.innerHTML = '<p class="col-span-5 text-gray-500 text-sm text-center py-4">Belum ada episode.</p>';
+                    showDetail();
+                }
+
+            } catch (err) {
+                alert('Gagal memuat detail drama: ' + err.message);
+            } finally {
+                globalLoading.classList.add('hidden');
+            }
+        }
+
+        async function playEpisode(ep, btnElement) {
+            // Update UI Selection
+            if (activeEpisodeBtn) {
+                activeEpisodeBtn.classList.remove('bg-brand-red', 'text-white', 'border-red-500');
+                activeEpisodeBtn.classList.add('bg-gray-800', 'text-gray-300', 'border-gray-700');
+            }
+            activeEpisodeBtn = btnElement;
+            activeEpisodeBtn.classList.remove('bg-gray-800', 'text-gray-300', 'border-gray-700');
+            activeEpisodeBtn.classList.add('bg-brand-red', 'text-white', 'border-red-500');
+
+            currentEpTitle.textContent = `Episode ${ep.episode}: ${ep.title || 'Memuat...'}`;
             
+            // Reset Player State
             player.classList.add('hidden');
             videoError.classList.add('hidden');
             qualitySelect.classList.add('hidden');
@@ -246,16 +765,15 @@
             player.src = '';
 
             try {
-                const res = await fetch(`${BASE_URL}/stream?videoId=${ep.video_id}&apikey=${API_KEY}`);
-                const data = await res.json();
-
-                if (!data.success || !data.result || data.result.length === 0) {
-                    throw new Error('Video stream tidak tersedia.');
+                const streamData = await fetchAPI(`/stream?videoId=${ep.video_id}`);
+                
+                if (!streamData || streamData.length === 0) {
+                    throw new Error('Video tidak tersedia.');
                 }
 
-                currentStreamData = data.result;
+                currentStreamData = streamData;
                 
-                // Populate quality select
+                // Populate quality
                 qualitySelect.innerHTML = '';
                 currentStreamData.forEach((stream, index) => {
                     const option = document.createElement('option');
@@ -264,12 +782,10 @@
                     qualitySelect.appendChild(option);
                 });
 
-                // Select highest quality by default (usually first item or 720p)
-                const defaultIndex = 0;
-                qualitySelect.value = defaultIndex;
+                qualitySelect.value = 0;
                 qualitySelect.classList.remove('hidden');
 
-                playStream(currentStreamData[defaultIndex].url);
+                loadVideoStream(currentStreamData[0].url);
 
             } catch (err) {
                 videoError.textContent = err.message;
@@ -278,7 +794,7 @@
             }
         }
 
-        function playStream(url) {
+        function loadVideoStream(url) {
             player.src = url;
             player.classList.remove('hidden');
             videoLoading.classList.add('hidden');
@@ -290,32 +806,19 @@
                 const currentTime = player.currentTime;
                 const isPaused = player.paused;
                 
-                playStream(currentStreamData[e.target.value].url);
+                loadVideoStream(currentStreamData[e.target.value].url);
                 
                 player.addEventListener('loadedmetadata', function onLoaded() {
                     player.currentTime = currentTime;
-                    if (isPaused) player.pause();
+                    if (!isPaused) player.play();
                     player.removeEventListener('loadedmetadata', onLoaded);
                 });
             }
         });
 
-        function closePlayer() {
-            modal.classList.add('hidden');
-            document.body.style.overflow = '';
-            player.pause();
-            player.src = '';
-        }
-
-        closeModalBtn.addEventListener('click', closePlayer);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closePlayer();
-        });
-
-        // Auto-fetch default ID on load
-        window.addEventListener('DOMContentLoaded', () => {
-            form.dispatchEvent(new Event('submit'));
-        });
+        // Init
+        window.addEventListener('DOMContentLoaded', loadHome);
     </script>
 </body>
 </html>
+
