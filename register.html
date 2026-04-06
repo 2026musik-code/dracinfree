@@ -106,33 +106,35 @@
         loadBackground();
 
         // Handle Registration
-        document.getElementById('registerForm').addEventListener('submit', (e) => {
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('regName').value;
             const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPassword').value;
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Memproses...';
 
-            // Simulasi penyimpanan ke database (menggunakan localStorage untuk preview)
-            let pendingUsers = JSON.parse(localStorage.getItem('admin_pending_users')) || [];
-            
-            // Cek apakah email sudah ada
-            const isExist = pendingUsers.some(u => u.email === email);
-            if (isExist) {
-                alert('Email ini sudah terdaftar dan sedang menunggu persetujuan.');
-                return;
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(data.error || 'Gagal mendaftar. Silakan coba lagi.');
+                } else {
+                    alert('Pendaftaran berhasil! Akun Anda sedang menunggu persetujuan Admin.');
+                    window.location.href = '/login';
+                }
+            } catch (err) {
+                alert('Terjadi kesalahan koneksi ke server.');
+            } finally {
+                btn.innerText = originalText;
             }
-
-            pendingUsers.push({
-                id: Date.now(),
-                name: name,
-                email: email,
-                date: new Date().toLocaleDateString('id-ID')
-            });
-
-            localStorage.setItem('admin_pending_users', JSON.stringify(pendingUsers));
-
-            alert('Pendaftaran berhasil! Akun Anda sedang menunggu persetujuan Admin.');
-            window.location.href = '/';
         });
     </script>
 </body>

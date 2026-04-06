@@ -97,18 +97,45 @@
         loadBackground();
 
         // Handle Login
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Memproses...';
 
-            // Simulasi login
-            if (email === 'admin@melolo.com' && password === 'admin123') {
-                alert('Login berhasil sebagai Admin!');
-                window.location.href = '/admin';
-            } else {
-                alert('Login berhasil! (Simulasi)');
-                window.location.href = '/';
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(data.error || 'Gagal masuk. Silakan coba lagi.');
+                } else {
+                    if (data.role === 'admin') {
+                        alert('Login berhasil sebagai Admin!');
+                        window.location.href = '/admin';
+                    } else {
+                        alert('Login berhasil!');
+                        // Simpan data user ke localStorage untuk ditampilkan di Profil
+                        localStorage.setItem('melolo_user', JSON.stringify(data.user));
+                        if (data.apiKey) {
+                            localStorage.setItem('melolo_api_key', data.apiKey);
+                            localStorage.setItem('melolo_limit', data.limit);
+                            localStorage.setItem('melolo_usage', data.usage);
+                        }
+                        window.location.href = '/';
+                    }
+                }
+            } catch (err) {
+                alert('Terjadi kesalahan koneksi ke server.');
+            } finally {
+                btn.innerText = originalText;
             }
         });
     </script>
