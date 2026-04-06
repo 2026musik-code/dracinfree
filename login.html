@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk - Melolo TV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { dark: '#0f172a', red: '#e11d48', card: '#1e293b' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-brand-dark text-white min-h-screen flex items-center justify-center relative overflow-hidden font-sans antialiased">
+
+    <!-- Dynamic Video Poster Background -->
+    <div id="bgContainer" class="absolute inset-0 z-0 transition-opacity duration-1000 opacity-0">
+        <img id="bgImage" src="" class="w-full h-full object-cover scale-105 blur-sm" alt="Background">
+        <!-- Dark Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-b from-brand-dark/80 via-brand-dark/60 to-brand-dark/95"></div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="relative z-10 w-full max-w-md p-6">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-black text-brand-red tracking-wider drop-shadow-lg mb-2">MELOLO<span class="text-white">TV</span></h1>
+            <p class="text-gray-300 drop-shadow-md">Masuk ke akun Anda</p>
+        </div>
+
+        <div class="bg-gray-900/80 backdrop-blur-xl rounded-2xl p-8 border border-gray-700/50 shadow-2xl">
+            <form id="loginForm" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </div>
+                        <input type="email" id="loginEmail" required class="w-full bg-gray-800/50 border border-gray-600 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-colors" placeholder="nama@email.com">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Kata Sandi</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        </div>
+                        <input type="password" id="loginPassword" required class="w-full bg-gray-800/50 border border-gray-600 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red transition-colors" placeholder="Masukkan kata sandi">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-brand-red hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-lg shadow-brand-red/30 mt-4">
+                    Masuk
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-400">Belum punya akun? <a href="/register" class="text-brand-red hover:underline font-medium">Daftar Sekarang</a></p>
+                <p class="text-sm text-gray-400 mt-2"><a href="/" class="hover:text-white transition-colors">Kembali ke Beranda</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch a random poster for the background
+        async function loadBackground() {
+            try {
+                const response = await fetch('https://api.ferdev.my.id/internet/melolo/search?query=ceo');
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    // Get a random drama from the results
+                    const randomDrama = data[Math.floor(Math.random() * Math.min(data.length, 5))];
+                    let posterUrl = randomDrama.cover;
+                    
+                    // Handle HEIC to WEBP
+                    if (posterUrl.toLowerCase().includes('.heic')) {
+                        posterUrl = `https://wsrv.nl/?url=${encodeURIComponent(posterUrl)}&output=webp`;
+                    }
+                    
+                    const bgImage = document.getElementById('bgImage');
+                    bgImage.src = posterUrl;
+                    bgImage.onload = () => {
+                        document.getElementById('bgContainer').classList.remove('opacity-0');
+                    };
+                }
+            } catch (error) {
+                console.error('Failed to load background poster:', error);
+            }
+        }
+
+        loadBackground();
+
+        // Handle Login
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Simulasi login
+            if (email === 'admin@melolo.com' && password === 'admin123') {
+                alert('Login berhasil sebagai Admin!');
+                window.location.href = '/admin';
+            } else {
+                alert('Login berhasil! (Simulasi)');
+                window.location.href = '/';
+            }
+        });
+    </script>
+</body>
+</html>
