@@ -8,4 +8,4 @@ directory = "."
 [[d1_databases]]
 binding = "DB"
 database_name = "melolo-db"
-database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" # Ganti dengan ID Database Anda setelah menjalankan perintah create
+database_id = "f5b3cc88-abff-4c5c-8fcf-d9f2c1ae9615"
