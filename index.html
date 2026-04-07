@@ -34,11 +34,21 @@
     <!-- Navbar -->
     <nav class="sticky top-0 z-50 bg-brand-dark/90 backdrop-blur-md border-b border-gray-800 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
                 <button id="backBtn" class="hidden text-gray-300 hover:text-white p-1">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 </button>
-                <h1 id="logoText" class="text-2xl font-black text-brand-red tracking-wider cursor-pointer">MELOLO<span class="text-white">TV</span></h1>
+                
+                <!-- Logo TV LTD & Animated Title -->
+                <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('home'); loadHome();">
+                    <div class="flex items-center justify-center bg-brand-red text-white rounded p-1 shadow-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
+                        <span class="text-[9px] font-black ml-0.5 tracking-tighter">LTD</span>
+                    </div>
+                    <div class="overflow-hidden w-28 relative flex items-center">
+                        <h1 id="logoText" class="text-2xl font-black text-brand-red tracking-wider whitespace-nowrap animate-marquee-lr">NINA<span class="text-white">TV</span></h1>
+                    </div>
+                </div>
             </div>
             <form id="searchForm" class="hidden md:flex flex-1 max-w-sm">
                 <input type="text" id="searchInput" placeholder="Cari judul drama..." 
@@ -275,6 +285,15 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        @keyframes marqueeLR {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .animate-marquee-lr {
+            display: inline-block;
+            animation: marqueeLR 5s linear infinite;
+        }
     </style>
 
     <script>

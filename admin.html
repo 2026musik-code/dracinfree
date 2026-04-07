@@ -21,13 +21,30 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        @keyframes marqueeLR {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .animate-marquee-lr {
+            display: inline-block;
+            animation: marqueeLR 5s linear infinite;
+        }
     </style>
 </head>
 <body class="bg-brand-dark text-white min-h-screen flex flex-col md:flex-row font-sans antialiased">
 
     <!-- Mobile Header -->
     <div class="md:hidden bg-gray-900 border-b border-gray-800 p-4 flex justify-between items-center sticky top-0 z-50">
-        <h1 class="text-xl font-black text-brand-red tracking-wider">MELOLO<span class="text-white">ADMIN</span></h1>
+        <div class="flex items-center gap-2">
+            <div class="flex items-center justify-center bg-brand-red text-white rounded p-1 shadow-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
+                <span class="text-[9px] font-black ml-0.5 tracking-tighter">LTD</span>
+            </div>
+            <div class="overflow-hidden w-28 relative flex items-center">
+                <h1 class="text-xl font-black text-brand-red tracking-wider whitespace-nowrap animate-marquee-lr">NINA<span class="text-white">ADMIN</span></h1>
+            </div>
+        </div>
         <button id="mobileMenuBtn" class="text-gray-400 hover:text-white">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
@@ -36,7 +53,15 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="w-full md:w-64 bg-gray-900 border-r border-gray-800 flex-col hidden md:flex fixed md:sticky top-0 h-screen z-40">
         <div class="p-6 border-b border-gray-800 hidden md:block">
-            <h1 class="text-2xl font-black text-brand-red tracking-wider">MELOLO<span class="text-white">ADMIN</span></h1>
+            <div class="flex items-center gap-2">
+                <div class="flex items-center justify-center bg-brand-red text-white rounded p-1.5 shadow-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
+                    <span class="text-[10px] font-black ml-1 tracking-tighter">LTD</span>
+                </div>
+                <div class="overflow-hidden w-32 relative flex items-center">
+                    <h1 class="text-2xl font-black text-brand-red tracking-wider whitespace-nowrap animate-marquee-lr">NINA<span class="text-white">ADMIN</span></h1>
+                </div>
+            </div>
         </div>
         <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
             <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg bg-brand-red text-white font-medium transition">
