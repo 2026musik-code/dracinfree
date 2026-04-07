@@ -391,10 +391,28 @@
             loadHome();
         }
 
-        function saveSettings(newKey) {
+        async function saveSettings(newKey) {
             if (newKey) {
                 localStorage.setItem('melolo_api_key', newKey);
                 API_KEY = newKey;
+                
+                // Sync with backend if user is logged in
+                const userStr = localStorage.getItem('melolo_user');
+                if (userStr) {
+                    try {
+                        const currentUser = JSON.parse(userStr);
+                        if (currentUser && currentUser.email) {
+                            await fetch('/api/user/update-key', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ email: currentUser.email, newKey: newKey })
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Failed to sync API key to server', e);
+                    }
+                }
+                
                 alert('API Key berhasil disimpan!');
             } else {
                 localStorage.removeItem('melolo_api_key');

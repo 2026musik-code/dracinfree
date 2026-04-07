@@ -76,6 +76,24 @@ async function handleApiRequest(request, env) {
       }));
     }
 
+    // --- USER API ---
+    if (url.pathname === '/api/user/update-key' && method === 'POST') {
+      try {
+        const { email, newKey } = await request.json();
+        
+        const user = await env.DB.prepare("SELECT id FROM users WHERE email = ?").bind(email).first();
+        if (!user) {
+          return new Response(JSON.stringify({ error: 'User tidak ditemukan' }), { status: 404 });
+        }
+
+        await env.DB.prepare("UPDATE api_keys SET api_key = ? WHERE user_id = ?").bind(newKey, user.id).run();
+        
+        return new Response(JSON.stringify({ success: true }));
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+      }
+    }
+
     // --- ADMIN API ---
     if (url.pathname.startsWith('/api/admin/')) {
       // GET Pending Users
