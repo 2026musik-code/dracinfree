@@ -184,7 +184,7 @@
         </div>
         
         <!-- API Settings & Usage -->
-        <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800 mb-6">
+        <div id="apiSettingsSection" class="bg-gray-900 rounded-2xl p-6 border border-gray-800 mb-6 hidden">
             <h3 class="font-bold text-lg text-white mb-4 border-l-4 border-brand-red pl-3">Informasi API Key</h3>
             
             <div class="mb-6">
@@ -714,6 +714,13 @@
 
         // --- Detail & Player Logic ---
         async function openDrama(bookId) {
+            const userStr = localStorage.getItem('melolo_user');
+            if (!userStr) {
+                alert('Silakan Masuk (Login) terlebih dahulu untuk menonton drama.');
+                switchTab('profile');
+                return;
+            }
+
             globalLoading.classList.remove('hidden');
             
             try {
@@ -874,6 +881,7 @@
             const usageText = document.getElementById('usageText');
             const usageBar = document.getElementById('usageBar');
             const limitText = document.getElementById('limitText');
+            const apiSettingsSection = document.getElementById('apiSettingsSection');
 
             if (userStr) {
                 const user = JSON.parse(userStr);
@@ -887,6 +895,7 @@
                 authButtons.classList.remove('flex');
                 logoutButton.classList.remove('hidden');
                 logoutButton.classList.add('flex');
+                apiSettingsSection.classList.remove('hidden');
 
                 if (apiKey) {
                     apiKeyInput.value = apiKey;
@@ -912,6 +921,8 @@
                 usageText.textContent = '0 / 0';
                 limitText.textContent = '0 / Hari';
                 usageBar.style.width = '0%';
+                
+                apiSettingsSection.classList.add('hidden');
             }
         }
 
