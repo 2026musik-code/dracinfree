@@ -155,27 +155,28 @@
         <!-- ACTIVE USERS VIEW -->
         <div id="view-users" class="hidden max-w-6xl mx-auto">
             <h2 class="text-2xl font-bold mb-6 border-l-4 border-brand-red pl-3">Daftar User Aktif</h2>
-            <div class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-800/50 border-b border-gray-800 text-gray-400 text-sm uppercase tracking-wider">
-                                <th class="p-4 font-medium">Nama</th>
-                                <th class="p-4 font-medium">Email</th>
-                                <th class="p-4 font-medium">API Key</th>
-                                <th class="p-4 font-medium w-32">Limit / Hari</th>
-                                <th class="p-4 font-medium text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="activeTableBody" class="divide-y divide-gray-800">
-                            <!-- Rows injected via JS -->
-                        </tbody>
-                    </table>
-                </div>
+            <div id="activeUsersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- User cards injected via JS -->
             </div>
         </div>
 
     </main>
+
+    <!-- User Details Modal -->
+    <div id="userModal" class="fixed inset-0 z-50 bg-brand-dark/80 backdrop-blur-sm flex items-center justify-center hidden">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl relative m-4">
+            <button onclick="closeUserModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
+                Detail User
+            </h3>
+            <div id="userModalContent" class="space-y-4">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
 
     <script>
         // --- Authentication Check ---
@@ -255,33 +256,69 @@
         }
 
         function renderActiveUsers() {
-            const tbody = document.getElementById('activeTableBody');
-            tbody.innerHTML = '';
+            const grid = document.getElementById('activeUsersGrid');
+            grid.innerHTML = '';
             
             if (activeUsers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Tidak ada user aktif.</td></tr>`;
+                grid.innerHTML = `<div class="col-span-full p-8 text-center text-gray-500 bg-gray-900 rounded-2xl border border-gray-800">Tidak ada user aktif.</div>`;
                 return;
             }
 
             activeUsers.forEach(user => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-800/50 transition-colors';
-                tr.innerHTML = `
-                    <td class="p-4 font-medium text-white">${user.name}</td>
-                    <td class="p-4 text-gray-400">${user.email}</td>
-                    <td class="p-4">
-                        <code class="px-2 py-1 bg-gray-950 text-brand-red rounded border border-gray-800 text-xs">${user.key}</code>
-                    </td>
-                    <td class="p-4">
-                        <input type="number" id="limit-${user.id}" value="${user.limit_count}" class="w-20 bg-gray-950 border border-gray-700 text-white rounded px-2 py-1 text-sm focus:outline-none focus:border-brand-red">
-                    </td>
-                    <td class="p-4 text-right space-x-2">
-                        <button onclick="updateLimit(${user.id})" class="px-3 py-1.5 bg-blue-500/20 text-blue-500 hover:bg-blue-500 hover:text-white border border-blue-500/50 rounded-lg text-sm font-medium transition">Simpan Limit</button>
-                        <button onclick="deleteActiveUser(${user.id})" class="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/50 rounded-lg text-sm font-medium transition">Hapus</button>
-                    </td>
+                const card = document.createElement('div');
+                card.className = 'bg-gray-900 border border-gray-800 rounded-xl p-4 cursor-pointer hover:border-brand-red/50 hover:shadow-lg hover:shadow-brand-red/10 transition group flex items-center justify-between';
+                card.onclick = () => openUserModal(user);
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(34,197,94,0.8)] flex-shrink-0"></div>
+                        <div class="truncate">
+                            <p class="font-bold text-white truncate group-hover:text-brand-red transition-colors">${user.name}</p>
+                            <p class="text-xs text-gray-500 truncate">${user.email}</p>
+                        </div>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-600 group-hover:text-brand-red transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 `;
-                tbody.appendChild(tr);
+                grid.appendChild(card);
             });
+        }
+
+        function openUserModal(user) {
+            const modal = document.getElementById('userModal');
+            const content = document.getElementById('userModalContent');
+            
+            content.innerHTML = `
+                <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+                    <p class="text-xs text-gray-400 mb-1 uppercase tracking-wider font-bold">Nama Lengkap</p>
+                    <p class="font-bold text-white text-lg">${user.name}</p>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+                    <p class="text-xs text-gray-400 mb-1 uppercase tracking-wider font-bold">Email</p>
+                    <p class="font-medium text-white">${user.email}</p>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+                    <p class="text-xs text-gray-400 mb-2 uppercase tracking-wider font-bold">API Key</p>
+                    <code class="block w-full px-3 py-2 bg-gray-950 text-brand-red rounded border border-gray-800 text-sm break-all">${user.key}</code>
+                </div>
+                <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+                    <p class="text-xs text-gray-400 mb-2 uppercase tracking-wider font-bold">Limit Request / Hari</p>
+                    <div class="flex gap-2">
+                        <input type="number" id="modal-limit-${user.id}" value="${user.limit_count}" class="flex-1 bg-gray-950 border border-gray-700 text-white rounded-lg px-3 py-2 focus:outline-none focus:border-brand-red">
+                        <button onclick="updateLimit(${user.id})" class="px-4 py-2 bg-blue-500/20 text-blue-500 hover:bg-blue-500 hover:text-white border border-blue-500/50 rounded-lg font-medium transition">Simpan</button>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-gray-800 mt-6">
+                    <button onclick="deleteActiveUser(${user.id}); closeUserModal();" class="w-full px-4 py-3 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/30 rounded-lg font-bold transition flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Hapus User
+                    </button>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').classList.add('hidden');
         }
 
         // --- Actions ---
@@ -308,7 +345,7 @@
         }
 
         async function updateLimit(id) {
-            const input = document.getElementById(`limit-${id}`);
+            const input = document.getElementById(`modal-limit-${id}`) || document.getElementById(`limit-${id}`);
             const newLimit = parseInt(input.value);
             
             if (isNaN(newLimit) || newLimit < 0) {
@@ -319,6 +356,7 @@
             await fetch('/api/admin/limit', { method: 'POST', body: JSON.stringify({ userId: id, limit: newLimit }) });
             alert('Limit berhasil diperbarui.');
             fetchActiveUsers();
+            closeUserModal();
         }
 
         async function deleteActiveUser(id) {
