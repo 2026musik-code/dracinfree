@@ -64,16 +64,20 @@
             </div>
         </div>
         <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-            <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg bg-brand-red text-white font-medium transition">
+            <button onclick="scrollToSection('profile')" id="nav-profile" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg bg-brand-red text-white font-medium transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 Profil Admin
             </button>
-            <button onclick="switchTab('registrations')" id="nav-registrations" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white font-medium transition">
+            <button onclick="scrollToSection('password')" id="nav-password" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white font-medium transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                Ganti Sandi
+            </button>
+            <button onclick="scrollToSection('registrations')" id="nav-registrations" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white font-medium transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
                 Pendaftaran User
                 <span id="pendingBadge" class="ml-auto bg-brand-red text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
             </button>
-            <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white font-medium transition">
+            <button onclick="scrollToSection('users')" id="nav-users" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white font-medium transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 User Aktif
             </button>
@@ -83,83 +87,81 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Kembali ke Web
             </a>
-            <button id="logoutBtn" class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg text-sm font-medium transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                Keluar
-            </button>
         </div>
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 p-4 md:p-8 overflow-y-auto h-screen custom-scrollbar">
         
-        <!-- PROFILE VIEW -->
-        <div id="view-profile" class="max-w-3xl mx-auto">
-            <h2 class="text-2xl font-bold mb-6 border-l-4 border-brand-red pl-3">Profil Admin</h2>
+        <div class="max-w-6xl mx-auto space-y-8 pb-12">
             
-            <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800 mb-6">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center border-2 border-brand-red">
-                        <svg class="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Super Admin</h3>
-                        <p class="text-gray-400">admin@melolo.com</p>
-                        <span class="inline-block mt-1 px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/50 rounded text-xs font-bold uppercase">Active</span>
+            <!-- SECTION 1: PROFILE ADMIN -->
+            <section id="section-profile">
+                <h2 class="text-2xl font-bold mb-6 border-l-4 border-brand-red pl-3">Profil Admin</h2>
+                <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                    <div class="flex items-center gap-4">
+                        <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center border-2 border-brand-red">
+                            <svg class="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">Super Admin</h3>
+                            <p class="text-gray-400">admin@melolo.com</p>
+                            <span class="inline-block mt-1 px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/50 rounded text-xs font-bold uppercase">Active</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
-                <h3 class="font-bold text-lg text-white mb-4">Ganti Kata Sandi</h3>
-                <form id="passwordForm" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Sandi Saat Ini</label>
-                        <input type="password" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Masukkan sandi saat ini">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Sandi Baru</label>
-                        <input type="password" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Masukkan sandi baru">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Konfirmasi Sandi Baru</label>
-                        <input type="password" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Ulangi sandi baru">
-                    </div>
-                    <button type="button" onclick="alert('Kata sandi berhasil diperbarui (Simulasi)')" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition">Simpan Sandi</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- REGISTRATIONS VIEW -->
-        <div id="view-registrations" class="hidden max-w-5xl mx-auto">
-            <h2 class="text-2xl font-bold mb-6 border-l-4 border-brand-red pl-3">Pendaftaran User Baru</h2>
-            <div class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-800/50 border-b border-gray-800 text-gray-400 text-sm uppercase tracking-wider">
-                                <th class="p-4 font-medium">Nama</th>
-                                <th class="p-4 font-medium">Email</th>
-                                <th class="p-4 font-medium">Tanggal Daftar</th>
-                                <th class="p-4 font-medium text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pendingTableBody" class="divide-y divide-gray-800">
-                            <!-- Rows injected via JS -->
-                        </tbody>
-                    </table>
+            <!-- SECTION 2: GANTI SANDI -->
+            <section id="section-password">
+                <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                    <h3 class="font-bold text-lg text-white mb-4">Ganti Kata Sandi</h3>
+                    <form id="passwordForm" class="space-y-4 max-w-2xl">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Sandi Saat Ini</label>
+                            <input type="password" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Masukkan sandi saat ini">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Sandi Baru</label>
+                            <input type="password" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Masukkan sandi baru">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Konfirmasi Sandi Baru</label>
+                            <input type="password" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Ulangi sandi baru">
+                        </div>
+                        <button type="button" onclick="alert('Kata sandi berhasil diperbarui (Simulasi)')" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition">Simpan Sandi</button>
+                    </form>
                 </div>
-            </div>
-        </div>
+            </section>
 
-        <!-- ACTIVE USERS VIEW -->
-        <div id="view-users" class="hidden max-w-6xl mx-auto">
-            <h2 class="text-2xl font-bold mb-6 border-l-4 border-brand-red pl-3">Daftar User Aktif</h2>
-            <div id="activeUsersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- User cards injected via JS -->
-            </div>
-        </div>
+            <!-- SECTION 3: PENDAFTARAN USER BARU -->
+            <section id="section-registrations">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold border-l-4 border-brand-red pl-3">Pendaftaran User Baru</h2>
+                    <span id="pendingBadge" class="bg-brand-red text-white text-sm font-bold px-3 py-1 rounded-full">0</span>
+                </div>
+                <div id="pendingUsersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Pending user cards injected via JS -->
+                </div>
+            </section>
 
+            <!-- SECTION 4: DAFTAR USER AKTIF -->
+            <section id="section-users">
+                <h2 class="text-2xl font-bold mb-6 border-l-4 border-brand-red pl-3">Daftar User Aktif</h2>
+                <div id="activeUsersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- User cards injected via JS -->
+                </div>
+            </section>
+
+            <!-- LOGOUT BUTTON -->
+            <div class="pt-8 border-t border-gray-800 mt-8">
+                <button id="logoutBtn" class="flex items-center justify-center gap-2 w-full md:w-auto px-8 py-4 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/50 rounded-xl text-lg font-bold transition mx-auto shadow-lg shadow-red-500/10">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    KELUAR DARI PANEL ADMIN
+                </button>
+            </div>
+
+        </div>
     </main>
 
     <!-- User Details Modal -->
@@ -230,28 +232,31 @@
         }
 
         function renderPendingUsers() {
-            const tbody = document.getElementById('pendingTableBody');
-            tbody.innerHTML = '';
+            const grid = document.getElementById('pendingUsersGrid');
+            grid.innerHTML = '';
             
             if (pendingUsers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-500">Tidak ada pendaftaran baru.</td></tr>`;
+                grid.innerHTML = `<div class="col-span-full p-8 text-center text-gray-500 bg-gray-900 rounded-2xl border border-gray-800">Tidak ada pendaftaran baru.</div>`;
                 return;
             }
 
             pendingUsers.forEach(user => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-800/50 transition-colors';
-                tr.innerHTML = `
-                    <td class="p-4 font-medium text-white">${user.name}</td>
-                    <td class="p-4 text-gray-400">${user.email}</td>
-                    <td class="p-4 text-gray-400">${new Date(user.date).toLocaleDateString('id-ID')}</td>
-                    <td class="p-4 text-right space-x-2">
-                        <button onclick="approveUser(${user.id})" class="px-3 py-1.5 bg-green-500/20 text-green-500 hover:bg-green-500 hover:text-white border border-green-500/50 rounded-lg text-sm font-medium transition">Setuju</button>
-                        <button onclick="rejectUser(${user.id})" class="px-3 py-1.5 bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500 hover:text-white border border-yellow-500/50 rounded-lg text-sm font-medium transition">Tolak</button>
-                        <button onclick="deletePending(${user.id})" class="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/50 rounded-lg text-sm font-medium transition">Hapus</button>
-                    </td>
+                const card = document.createElement('div');
+                card.className = 'bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-brand-red/50 transition flex flex-col gap-4';
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="truncate">
+                            <p class="font-bold text-white truncate">${user.name}</p>
+                            <p class="text-xs text-gray-400 truncate">${user.email}</p>
+                        </div>
+                        <span class="text-[10px] text-gray-500 bg-gray-800 px-2 py-1 rounded whitespace-nowrap">${new Date(user.date).toLocaleDateString('id-ID')}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-auto">
+                        <button onclick="approveUser(${user.id})" class="w-full py-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white border border-green-500/30 rounded-lg text-sm font-bold transition">Setuju</button>
+                        <button onclick="rejectUser(${user.id})" class="w-full py-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/30 rounded-lg text-sm font-bold transition">Tolak</button>
+                    </div>
                 `;
-                tbody.appendChild(tr);
+                grid.appendChild(card);
             });
         }
 
@@ -301,9 +306,9 @@
                 </div>
                 <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
                     <p class="text-xs text-gray-400 mb-2 uppercase tracking-wider font-bold">Limit Request / Hari</p>
-                    <div class="flex gap-2">
-                        <input type="number" id="modal-limit-${user.id}" value="${user.limit_count}" class="flex-1 bg-gray-950 border border-gray-700 text-white rounded-lg px-3 py-2 focus:outline-none focus:border-brand-red">
-                        <button onclick="updateLimit(${user.id})" class="px-4 py-2 bg-blue-500/20 text-blue-500 hover:bg-blue-500 hover:text-white border border-blue-500/50 rounded-lg font-medium transition">Simpan</button>
+                    <div class="flex flex-col gap-3">
+                        <input type="number" id="modal-limit-${user.id}" value="${user.limit_count}" class="w-full bg-gray-950 border border-gray-700 text-white rounded-lg px-3 py-2 focus:outline-none focus:border-brand-red">
+                        <button onclick="updateLimit(${user.id})" class="w-full px-4 py-2 bg-blue-500/20 text-blue-500 hover:bg-blue-500 hover:text-white border border-blue-500/50 rounded-lg font-medium transition">Simpan Limit</button>
                     </div>
                 </div>
                 <div class="pt-4 border-t border-gray-800 mt-6">
@@ -393,21 +398,26 @@
         });
 
         // --- Navigation Logic ---
-        const views = ['profile', 'registrations', 'users'];
-        
-        function switchTab(tab) {
-            // Update Views
-            views.forEach(v => {
-                document.getElementById(`view-${v}`).classList.add('hidden');
-                const navBtn = document.getElementById(`nav-${v}`);
-                navBtn.classList.remove('bg-brand-red', 'text-white');
-                navBtn.classList.add('text-gray-400', 'hover:bg-gray-800', 'hover:text-white');
-            });
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(`section-${sectionId}`);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
             
-            document.getElementById(`view-${tab}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`nav-${tab}`);
-            activeBtn.classList.remove('text-gray-400', 'hover:bg-gray-800', 'hover:text-white');
-            activeBtn.classList.add('bg-brand-red', 'text-white');
+            // Update active state
+            const navIds = ['profile', 'password', 'registrations', 'users'];
+            navIds.forEach(id => {
+                const btn = document.getElementById(`nav-${id}`);
+                if (btn) {
+                    if (id === sectionId) {
+                        btn.classList.remove('text-gray-400', 'hover:bg-gray-800', 'hover:text-white');
+                        btn.classList.add('bg-brand-red', 'text-white');
+                    } else {
+                        btn.classList.remove('bg-brand-red', 'text-white');
+                        btn.classList.add('text-gray-400', 'hover:bg-gray-800', 'hover:text-white');
+                    }
+                }
+            });
 
             // Close mobile menu if open
             const sidebar = document.getElementById('sidebar');
