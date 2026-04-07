@@ -299,7 +299,16 @@
             { id: 'istri', title: 'Istri Tersakiti', query: 'istri' },
             { id: 'miliarder', title: 'Miliarder Menyamar', query: 'miliarder' },
             { id: 'bos', title: 'Bos Arogan', query: 'bos' },
-            { id: 'dokter', title: 'Dokter Jenius', query: 'dokter' }
+            { id: 'dokter', title: 'Dokter Jenius', query: 'dokter' },
+            { id: 'reinkarnasi', title: 'Kembali ke Masa Lalu', query: 'kembali' },
+            { id: 'kontrak', title: 'Pernikahan Kontrak', query: 'kontrak' },
+            { id: 'kembar', title: 'Anak Kembar Jenius', query: 'kembar' },
+            { id: 'selingkuh', title: 'Drama Perselingkuhan', query: 'selingkuh' },
+            { id: 'mertua', title: 'Mertua Kejam', query: 'mertua' },
+            { id: 'jodoh', title: 'Perjodohan Paksa', query: 'jodoh' },
+            { id: 'sakti', title: 'Kekuatan Tersembunyi', query: 'sakti' },
+            { id: 'kaya', title: 'Mendadak Kaya Raya', query: 'kaya' },
+            { id: 'pengawal', title: 'Pengawal Rahasia', query: 'pengawal' }
         ];
 
         // Elements
@@ -346,6 +355,8 @@
 
         let currentStreamData = null;
         let activeEpisodeBtn = null;
+        let currentDramaEpisodes = [];
+        let currentEpisodeIndex = 0;
 
         // Trik Nina: Handle HEIC to WEBP
         function handleHeic(url) {
@@ -726,10 +737,12 @@
                     });
                 }
 
-                <!-- Render Episodes Grid (5 columns) -->
+                // Render Episodes Grid (5 columns)
                 episodesGrid.innerHTML = '';
-                if (drama.episodes && drama.episodes.length) {
-                    drama.episodes.forEach((ep, index) => {
+                currentDramaEpisodes = drama.episodes || [];
+                
+                if (currentDramaEpisodes.length) {
+                    currentDramaEpisodes.forEach((ep, index) => {
                         const btn = document.createElement('button');
                         // Memperbaiki desain tombol agar teks berada tepat di tengah kotak
                         btn.className = 'ep-btn aspect-square bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md text-sm sm:text-base font-bold flex items-center justify-center border border-gray-700 transition-colors relative overflow-hidden group';
@@ -740,14 +753,14 @@
                             <div class="absolute inset-0 bg-brand-red opacity-0 group-hover:opacity-20 transition-opacity"></div>
                         `;
                         
-                        btn.onclick = () => playEpisode(ep, btn);
+                        btn.onclick = () => playEpisode(ep, btn, index);
                         episodesGrid.appendChild(btn);
                     });
 
                     // Auto play episode 1
                     showDetail();
                     const firstEpBtn = episodesGrid.firstChild;
-                    playEpisode(drama.episodes[0], firstEpBtn);
+                    playEpisode(currentDramaEpisodes[0], firstEpBtn, 0);
                 } else {
                     episodesGrid.innerHTML = '<p class="col-span-5 text-gray-500 text-sm text-center py-4">Belum ada episode.</p>';
                     showDetail();
@@ -760,7 +773,9 @@
             }
         }
 
-        async function playEpisode(ep, btnElement) {
+        async function playEpisode(ep, btnElement, index) {
+            currentEpisodeIndex = index;
+            
             // Update UI Selection
             if (activeEpisodeBtn) {
                 activeEpisodeBtn.classList.remove('bg-brand-red', 'text-white', 'border-red-500');
@@ -828,6 +843,18 @@
                     if (!isPaused) player.play();
                     player.removeEventListener('loadedmetadata', onLoaded);
                 });
+            }
+        });
+
+        // Auto-play next episode when current ends
+        player.addEventListener('ended', () => {
+            if (currentEpisodeIndex < currentDramaEpisodes.length - 1) {
+                const nextIndex = currentEpisodeIndex + 1;
+                const nextEp = currentDramaEpisodes[nextIndex];
+                const nextBtn = episodesGrid.children[nextIndex];
+                if (nextEp && nextBtn) {
+                    playEpisode(nextEp, nextBtn, nextIndex);
+                }
             }
         });
 
