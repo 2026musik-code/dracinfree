@@ -118,6 +118,8 @@
                         <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-red"></div>
                     </div>
                     <video id="player" controls class="w-full h-full hidden object-contain" playsinline></video>
+                    <!-- Logo Overlay -->
+                    <img id="videoLogo" src="https://picsum.photos/seed/logo/100/100" alt="Logo" class="absolute top-4 right-4 w-12 h-12 opacity-50 z-20 pointer-events-none hidden">
                     <div id="videoError" class="hidden absolute inset-0 flex items-center justify-center text-red-500 p-4 text-center bg-black/90 z-20"></div>
                 </div>
 
@@ -885,6 +887,7 @@
             
             // Reset Player State
             player.classList.add('hidden');
+            document.getElementById('videoLogo').classList.add('hidden');
             videoError.classList.add('hidden');
             qualitySelect.classList.add('hidden');
             videoLoading.classList.remove('hidden');
@@ -923,6 +926,7 @@
         function loadVideoStream(url) {
             player.src = url;
             player.classList.remove('hidden');
+            document.getElementById('videoLogo').classList.remove('hidden');
             videoLoading.classList.add('hidden');
             player.play().catch(e => console.log("Auto-play prevented", e));
         }
