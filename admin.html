@@ -137,17 +137,12 @@
             <!-- SECTION 2.5: PENGATURAN PEMBAYARAN -->
             <section id="section-payment">
                 <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
-                    <h3 class="font-bold text-lg text-white mb-4">Pengaturan Pembayaran (Pakasir)</h3>
+                    <h3 class="font-bold text-lg text-white mb-4">Pengaturan Pembayaran</h3>
                     <form id="paymentSettingsForm" class="space-y-4 max-w-2xl">
                         <div>
                             <label class="block text-sm font-medium text-gray-400 mb-1">Username / Slug Pakasir</label>
                             <input type="text" id="pakasirSlug" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Contoh: dedi-hutapea">
                             <p class="text-xs text-gray-500 mt-1">Username ini akan digunakan pada link QRIS Pakasir.</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-1">API Key Pakasir</label>
-                            <input type="password" id="pakasirApiKey" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Masukkan API Key Pakasir...">
-                            <p class="text-xs text-gray-500 mt-1">API Key untuk verifikasi webhook (jika menggunakan backend).</p>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
@@ -469,13 +464,11 @@
         // --- Payment Settings ---
         function loadPaymentSettings() {
             const slug = localStorage.getItem('melolo_pakasir_slug') || 'dedi-hutapea';
-            const apiKey = localStorage.getItem('melolo_pakasir_api_key') || '';
             const price7 = localStorage.getItem('melolo_price_7') || '3000';
             const price15 = localStorage.getItem('melolo_price_15') || '5000';
             const price30 = localStorage.getItem('melolo_price_30') || '10000';
 
             document.getElementById('pakasirSlug').value = slug;
-            document.getElementById('pakasirApiKey').value = apiKey;
             document.getElementById('price7').value = price7;
             document.getElementById('price15').value = price15;
             document.getElementById('price30').value = price30;
@@ -483,7 +476,6 @@
 
         function savePaymentSettings() {
             const slug = document.getElementById('pakasirSlug').value.trim();
-            const apiKey = document.getElementById('pakasirApiKey').value.trim();
             const price7 = document.getElementById('price7').value;
             const price15 = document.getElementById('price15').value;
             const price30 = document.getElementById('price30').value;
@@ -494,7 +486,6 @@
             }
 
             localStorage.setItem('melolo_pakasir_slug', slug);
-            localStorage.setItem('melolo_pakasir_api_key', apiKey);
             localStorage.setItem('melolo_price_7', price7);
             localStorage.setItem('melolo_price_15', price15);
             localStorage.setItem('melolo_price_30', price30);
