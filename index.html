@@ -1091,7 +1091,6 @@
             paymentView.classList.remove('hidden');
             paymentView.classList.add('flex');
             
-            // Mengambil URL dari config.js
             const WORKER_URL = window.APP_CONFIG.WORKER_URL;
             
             try {
@@ -1110,16 +1109,18 @@
                 
                 const data = await response.json();
                 
-                if (data.success) {
-                    // Buka halaman pembayaran Paymenku
-                    window.open(data.data.checkout_url, '_blank');
+                // Mendukung berbagai struktur respons Paymenku
+                const checkoutUrl = data.checkout_url || (data.data && data.data.checkout_url);
+                
+                if (checkoutUrl) {
+                    window.open(checkoutUrl, '_blank');
                     upgradeModalTitle.textContent = `Pembayaran - ${packageName}`;
                 } else {
-                    alert('Gagal membuat transaksi: ' + (data.message || 'Error'));
+                    alert('Gagal: ' + (data.message || JSON.stringify(data)));
                     closeUpgradeModal();
                 }
             } catch (error) {
-                alert('Terjadi kesalahan koneksi ke server pembayaran.');
+                alert('Terjadi kesalahan koneksi: ' + error.message);
                 closeUpgradeModal();
             }
         }
