@@ -1084,16 +1084,40 @@
             paymentIframe.src = '';
         }
 
+        // Fungsi untuk menampilkan modal loading modern
+        function showLoadingModal(message) {
+            const modal = document.createElement('div');
+            modal.id = 'loadingModal';
+            modal.className = 'fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl w-80 text-center shadow-2xl">
+                    <div class="w-16 h-16 border-4 border-brand-red border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p class="text-white font-bold mb-4">${message}</p>
+                    <div class="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+                        <div id="progressBar" class="bg-brand-red h-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function updateProgress(percent) {
+            const bar = document.getElementById('progressBar');
+            if (bar) bar.style.width = percent + '%';
+        }
+
+        function closeLoadingModal() {
+            const modal = document.getElementById('loadingModal');
+            if (modal) modal.remove();
+        }
+
         async function processPayment(packageName, price) {
             selectedPackage = packageName;
-            // Jangan tampilkan modal pembayaran di awal
+            showLoadingModal('Memproses pembayaran...');
             
             const WORKER_URL = window.APP_CONFIG.WORKER_URL;
             
             try {
-                // Tampilkan loading sementara jika perlu, atau biarkan user tahu proses sedang berjalan
-                alert('Memproses pembayaran, mohon tunggu...');
-                
                 const response = await fetch(WORKER_URL + '/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1112,11 +1136,15 @@
                 const referenceId = data.data && data.data.reference_id;
                 
                 if (checkoutUrl) {
-                    // Langsung buka Paymenku di tab baru
                     window.open(checkoutUrl, '_blank');
                     
-                    // Mulai cek status otomatis setiap 5 detik
+                    let progress = 20;
+                    updateProgress(progress);
+                    
                     const interval = setInterval(async () => {
+                        progress += 10;
+                        updateProgress(Math.min(progress, 90));
+                        
                         const checkResponse = await fetch(WORKER_URL + '/check', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -1126,18 +1154,22 @@
                         
                         if (checkData.data && checkData.data.status === 'success') {
                             clearInterval(interval);
+                            updateProgress(100);
                             
-                            // Tampilkan notifikasi sukses dan tambah limit
-                            alert('Pembayaran Berhasil! Limit Anda telah bertambah.');
-                            localStorage.setItem('user_limit', parseInt(localStorage.getItem('user_limit') || 0) + 100);
-                            
-                            location.reload();
+                            setTimeout(() => {
+                                alert('Pembayaran Berhasil! Limit Anda telah bertambah.');
+                                localStorage.setItem('user_limit', parseInt(localStorage.getItem('user_limit') || 0) + 100);
+                                closeLoadingModal();
+                                location.reload();
+                            }, 500);
                         }
                     }, 5000);
                 } else {
+                    closeLoadingModal();
                     alert('Gagal: ' + (data.message || JSON.stringify(data)));
                 }
             } catch (error) {
+                closeLoadingModal();
                 alert('Terjadi kesalahan: ' + error.message);
             }
         }
