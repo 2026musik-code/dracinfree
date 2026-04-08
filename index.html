@@ -1086,14 +1086,14 @@
 
         async function processPayment(packageName, price) {
             selectedPackage = packageName;
-            upgradeModalTitle.textContent = `Memproses Pembayaran...`;
-            pricingView.classList.add('hidden');
-            paymentView.classList.remove('hidden');
-            paymentView.classList.add('flex');
+            // Jangan tampilkan modal pembayaran di awal
             
             const WORKER_URL = window.APP_CONFIG.WORKER_URL;
             
             try {
+                // Tampilkan loading sementara jika perlu, atau biarkan user tahu proses sedang berjalan
+                alert('Memproses pembayaran, mohon tunggu...');
+                
                 const response = await fetch(WORKER_URL + '/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1112,13 +1112,8 @@
                 const referenceId = data.data && data.data.reference_id;
                 
                 if (checkoutUrl) {
-                    // Langsung buka Paymenku di tab baru, jangan buka di iframe
+                    // Langsung buka Paymenku di tab baru
                     window.open(checkoutUrl, '_blank');
-                    upgradeModalTitle.textContent = `Menunggu Pembayaran...`;
-                    
-                    // Sembunyikan elemen modal yang tidak perlu
-                    paymentIframe.classList.add('hidden');
-                    confirmPaymentBtn.classList.add('hidden');
                     
                     // Mulai cek status otomatis setiap 5 detik
                     const interval = setInterval(async () => {
@@ -1131,24 +1126,19 @@
                         
                         if (checkData.data && checkData.data.status === 'success') {
                             clearInterval(interval);
+                            
+                            // Tampilkan notifikasi sukses dan tambah limit
                             alert('Pembayaran Berhasil! Limit Anda telah bertambah.');
                             localStorage.setItem('user_limit', parseInt(localStorage.getItem('user_limit') || 0) + 100);
                             
-                            // Kembalikan modal ke kondisi semula sebelum ditutup
-                            paymentIframe.classList.remove('hidden');
-                            confirmPaymentBtn.classList.remove('hidden');
-                            
-                            closeUpgradeModal();
                             location.reload();
                         }
                     }, 5000);
                 } else {
                     alert('Gagal: ' + (data.message || JSON.stringify(data)));
-                    closeUpgradeModal();
                 }
             } catch (error) {
                 alert('Terjadi kesalahan: ' + error.message);
-                closeUpgradeModal();
             }
         }
 
