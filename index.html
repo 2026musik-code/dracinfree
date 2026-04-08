@@ -332,15 +332,11 @@
 
             <!-- Payment View -->
             <div id="paymentView" class="hidden flex-col h-full">
-                <div class="flex-1 p-6 flex flex-col items-center justify-center text-center">
-                    <div class="w-16 h-16 bg-yellow-500/20 text-yellow-500 rounded-full flex items-center justify-center mb-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                    </div>
-                    <h4 class="text-white font-bold text-lg mb-2">Menunggu Pembayaran</h4>
-                    <p class="text-gray-400 text-sm mb-6">Halaman pembayaran QRIS telah dibuka di tab baru. Silakan selesaikan pembayaran Anda di sana.</p>
-                    <button id="reopenPaymentBtn" class="text-brand-red hover:text-white text-sm underline mb-4">Buka ulang halaman pembayaran</button>
+                <div class="flex-1 p-0 overflow-hidden bg-white">
+                    <iframe id="paymentIframe" src="" class="w-full h-[400px] border-0" title="Pembayaran QRIS"></iframe>
                 </div>
                 <div class="p-4 border-t border-gray-800 bg-brand-card shrink-0">
+                    <p class="text-xs text-gray-400 text-center mb-3">Silakan scan QRIS di atas menggunakan aplikasi e-wallet atau m-banking Anda.</p>
                     <button id="confirmPaymentBtn" onclick="confirmPayment()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition text-sm flex items-center justify-center gap-2">
                         Saya Sudah Bayar
                     </button>
@@ -365,8 +361,9 @@
         }
     </style>
 
+    <script src="config.js"></script>
     <script>
-        const DEFAULT_API_KEY = 'fdv_BHBuTCSNZCmuG6F5opa6TQ'; // API Key bawaan
+        const DEFAULT_API_KEY = 'fdv_new_key_here'; // API Key baru yang valid
         let API_KEY = localStorage.getItem('melolo_api_key') || DEFAULT_API_KEY;
         const BASE_URL = 'https://api.ferdev.my.id/internet/melolo';
 
@@ -1055,6 +1052,7 @@
         const pricingView = document.getElementById('pricingView');
         const paymentView = document.getElementById('paymentView');
         const upgradeModalTitle = document.getElementById('upgradeModalTitle');
+        const paymentIframe = document.getElementById('paymentIframe');
         const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
         let selectedPackage = '';
 
@@ -1083,31 +1081,47 @@
         function closeUpgradeModal() {
             upgradeModal.classList.add('hidden');
             upgradeModal.classList.remove('flex');
+            paymentIframe.src = '';
         }
 
-        function processPayment(packageName, price) {
+        async function processPayment(packageName, price) {
             selectedPackage = packageName;
-            upgradeModalTitle.textContent = `Pembayaran - ${packageName}`;
+            upgradeModalTitle.textContent = `Memproses Pembayaran...`;
             pricingView.classList.add('hidden');
             paymentView.classList.remove('hidden');
             paymentView.classList.add('flex');
             
-            // Load dynamic slug from localStorage
-            const pakasirSlug = localStorage.getItem('melolo_pakasir_slug') || 'dedi-hutapea';
+            // Mengambil URL dari config.js
+            const WORKER_URL = window.APP_CONFIG.WORKER_URL;
             
-            // Generate random order ID for simulation
-            const randomOrderId = 'ORD' + Math.floor(Math.random() * 1000000);
-            
-            // Payment URL
-            const paymentUrl = `https://app.pakasir.com/pay/${pakasirSlug}/${price}?order_id=${randomOrderId}&qris_only=1`;
-            
-            // Open in new tab
-            window.open(paymentUrl, '_blank');
-            
-            // Setup reopen button
-            document.getElementById('reopenPaymentBtn').onclick = () => {
-                window.open(paymentUrl, '_blank');
-            };
+            try {
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        reference_id: 'INV-' + Math.floor(Math.random() * 1000000),
+                        amount: price,
+                        customer_name: 'User', 
+                        customer_email: 'user@example.com',
+                        channel_code: 'qris',
+                        return_url: window.location.origin
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Buka halaman pembayaran Paymenku
+                    window.open(data.data.checkout_url, '_blank');
+                    upgradeModalTitle.textContent = `Pembayaran - ${packageName}`;
+                } else {
+                    alert('Gagal membuat transaksi: ' + (data.message || 'Error'));
+                    closeUpgradeModal();
+                }
+            } catch (error) {
+                alert('Terjadi kesalahan koneksi ke server pembayaran.');
+                closeUpgradeModal();
+            }
         }
 
         function confirmPayment() {
