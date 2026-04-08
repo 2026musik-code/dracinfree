@@ -1110,7 +1110,7 @@
                 const data = await response.json();
                 
                 // Mendukung berbagai struktur respons Paymenku
-                const checkoutUrl = data.checkout_url || (data.data && data.data.checkout_url);
+                const checkoutUrl = data.data && data.data.pay_url;
                 
                 if (checkoutUrl) {
                     window.open(checkoutUrl, '_blank');
