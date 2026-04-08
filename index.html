@@ -1094,7 +1094,7 @@
             const WORKER_URL = window.APP_CONFIG.WORKER_URL;
             
             try {
-                const response = await fetch(WORKER_URL, {
+                const response = await fetch(WORKER_URL + '/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1108,19 +1108,37 @@
                 });
                 
                 const data = await response.json();
-                
-                // Mendukung berbagai struktur respons Paymenku
                 const checkoutUrl = data.data && data.data.pay_url;
+                const referenceId = data.data && data.data.reference_id;
                 
                 if (checkoutUrl) {
                     window.open(checkoutUrl, '_blank');
-                    upgradeModalTitle.textContent = `Pembayaran - ${packageName}`;
+                    upgradeModalTitle.textContent = `Menunggu Pembayaran...`;
+                    
+                    // Mulai cek status otomatis setiap 5 detik
+                    const interval = setInterval(async () => {
+                        const checkResponse = await fetch(WORKER_URL + '/check', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ reference_id: referenceId })
+                        });
+                        const checkData = await checkResponse.json();
+                        
+                        if (checkData.data && checkData.data.status === 'success') {
+                            clearInterval(interval);
+                            alert('Pembayaran Berhasil! Limit Anda telah bertambah.');
+                            // Tambahkan logika tambah limit Anda di sini
+                            localStorage.setItem('user_limit', parseInt(localStorage.getItem('user_limit') || 0) + 100);
+                            closeUpgradeModal();
+                            location.reload();
+                        }
+                    }, 5000);
                 } else {
                     alert('Gagal: ' + (data.message || JSON.stringify(data)));
                     closeUpgradeModal();
                 }
             } catch (error) {
-                alert('Terjadi kesalahan koneksi: ' + error.message);
+                alert('Terjadi kesalahan: ' + error.message);
                 closeUpgradeModal();
             }
         }
