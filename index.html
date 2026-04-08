@@ -1112,8 +1112,13 @@
                 const referenceId = data.data && data.data.reference_id;
                 
                 if (checkoutUrl) {
+                    // Langsung buka Paymenku di tab baru, jangan buka di iframe
                     window.open(checkoutUrl, '_blank');
                     upgradeModalTitle.textContent = `Menunggu Pembayaran...`;
+                    
+                    // Sembunyikan elemen modal yang tidak perlu
+                    paymentIframe.classList.add('hidden');
+                    confirmPaymentBtn.classList.add('hidden');
                     
                     // Mulai cek status otomatis setiap 5 detik
                     const interval = setInterval(async () => {
@@ -1127,8 +1132,12 @@
                         if (checkData.data && checkData.data.status === 'success') {
                             clearInterval(interval);
                             alert('Pembayaran Berhasil! Limit Anda telah bertambah.');
-                            // Tambahkan logika tambah limit Anda di sini
                             localStorage.setItem('user_limit', parseInt(localStorage.getItem('user_limit') || 0) + 100);
+                            
+                            // Kembalikan modal ke kondisi semula sebelum ditutup
+                            paymentIframe.classList.remove('hidden');
+                            confirmPaymentBtn.classList.remove('hidden');
+                            
                             closeUpgradeModal();
                             location.reload();
                         }
