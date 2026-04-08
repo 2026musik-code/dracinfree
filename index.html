@@ -304,9 +304,9 @@
                     <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex justify-between items-center">
                         <div>
                             <h4 class="text-white font-bold text-lg">7 Hari</h4>
-                            <p class="text-brand-red font-bold">Rp 3.000</p>
+                            <p id="displayPrice7" class="text-brand-red font-bold">Rp 3.000</p>
                         </div>
-                        <button onclick="processPayment('7 Hari', 3000)" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm">Langganan</button>
+                        <button id="btnPrice7" onclick="processPayment('7 Hari', 3000)" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm">Langganan</button>
                     </div>
                     
                     <!-- Paket 15 Hari -->
@@ -314,18 +314,18 @@
                         <div class="absolute top-0 right-0 bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">POPULER</div>
                         <div>
                             <h4 class="text-white font-bold text-lg">15 Hari</h4>
-                            <p class="text-brand-red font-bold">Rp 5.000</p>
+                            <p id="displayPrice15" class="text-brand-red font-bold">Rp 5.000</p>
                         </div>
-                        <button onclick="processPayment('15 Hari', 5000)" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm">Langganan</button>
+                        <button id="btnPrice15" onclick="processPayment('15 Hari', 5000)" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm">Langganan</button>
                     </div>
                     
                     <!-- Paket 30 Hari -->
                     <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex justify-between items-center">
                         <div>
                             <h4 class="text-white font-bold text-lg">30 Hari</h4>
-                            <p class="text-brand-red font-bold">Rp 10.000</p>
+                            <p id="displayPrice30" class="text-brand-red font-bold">Rp 10.000</p>
                         </div>
-                        <button onclick="processPayment('30 Hari', 10000)" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm">Langganan</button>
+                        <button id="btnPrice30" onclick="processPayment('30 Hari', 10000)" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm">Langganan</button>
                     </div>
                 </div>
             </div>
@@ -1056,6 +1056,19 @@
         let selectedPackage = '';
 
         function showUpgradeModal() {
+            // Load dynamic prices from localStorage
+            const price7 = parseInt(localStorage.getItem('melolo_price_7')) || 3000;
+            const price15 = parseInt(localStorage.getItem('melolo_price_15')) || 5000;
+            const price30 = parseInt(localStorage.getItem('melolo_price_30')) || 10000;
+
+            document.getElementById('displayPrice7').textContent = `Rp ${price7.toLocaleString('id-ID')}`;
+            document.getElementById('displayPrice15').textContent = `Rp ${price15.toLocaleString('id-ID')}`;
+            document.getElementById('displayPrice30').textContent = `Rp ${price30.toLocaleString('id-ID')}`;
+
+            document.getElementById('btnPrice7').onclick = () => processPayment('7 Hari', price7);
+            document.getElementById('btnPrice15').onclick = () => processPayment('15 Hari', price15);
+            document.getElementById('btnPrice30').onclick = () => processPayment('30 Hari', price30);
+
             upgradeModalTitle.textContent = 'Pilih Paket Upgrade';
             pricingView.classList.remove('hidden');
             paymentView.classList.add('hidden');
@@ -1077,11 +1090,14 @@
             paymentView.classList.remove('hidden');
             paymentView.classList.add('flex');
             
+            // Load dynamic slug from localStorage
+            const pakasirSlug = localStorage.getItem('melolo_pakasir_slug') || 'dedi-hutapea';
+            
             // Generate random order ID for simulation
             const randomOrderId = 'ORD' + Math.floor(Math.random() * 1000000);
             
-            // Set iframe src to Pakasir QR
-            paymentIframe.src = `https://app.pakasir.com/pay/depodomain/22000?order_id=${randomOrderId}&qris_only=1`;
+            // Set iframe src to Pakasir QR with dynamic slug and price
+            paymentIframe.src = `https://app.pakasir.com/pay/${pakasirSlug}/${price}?order_id=${randomOrderId}&qris_only=1`;
         }
 
         function confirmPayment() {

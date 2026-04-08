@@ -68,6 +68,10 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
                 Ganti Sandi
             </button>
+            <button onclick="scrollToSection('payment')" id="nav-payment" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white font-medium transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                Pengaturan Pembayaran
+            </button>
             <button onclick="scrollToSection('registrations')" id="nav-registrations" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white font-medium transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
                 Pendaftaran User
@@ -126,6 +130,35 @@
                             <input type="password" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Ulangi sandi baru">
                         </div>
                         <button type="button" onclick="alert('Kata sandi berhasil diperbarui (Simulasi)')" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition">Simpan Sandi</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- SECTION 2.5: PENGATURAN PEMBAYARAN -->
+            <section id="section-payment">
+                <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                    <h3 class="font-bold text-lg text-white mb-4">Pengaturan Pembayaran (Pakasir)</h3>
+                    <form id="paymentSettingsForm" class="space-y-4 max-w-2xl">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Username / Slug Pakasir</label>
+                            <input type="text" id="pakasirSlug" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Contoh: dedi-hutapea">
+                            <p class="text-xs text-gray-500 mt-1">Username ini akan digunakan pada link QRIS Pakasir.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Harga 7 Hari (Rp)</label>
+                                <input type="number" id="price7" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="3000">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Harga 15 Hari (Rp)</label>
+                                <input type="number" id="price15" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="5000">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Harga 30 Hari (Rp)</label>
+                                <input type="number" id="price30" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="10000">
+                            </div>
+                        </div>
+                        <button type="button" onclick="savePaymentSettings()" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition">Simpan Pengaturan</button>
                     </form>
                 </div>
             </section>
@@ -401,7 +434,7 @@
             }
             
             // Update active state
-            const navIds = ['profile', 'password', 'registrations', 'users'];
+            const navIds = ['profile', 'password', 'payment', 'registrations', 'users'];
             navIds.forEach(id => {
                 const btn = document.getElementById(`nav-${id}`);
                 if (btn) {
