@@ -139,11 +139,6 @@
                 <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
                     <h3 class="font-bold text-lg text-white mb-4">Pengaturan Pembayaran</h3>
                     <form id="paymentSettingsForm" class="space-y-4 max-w-2xl">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-400 mb-1">Username / Slug Pakasir</label>
-                            <input type="text" id="pakasirSlug" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Contoh: dedi-hutapea">
-                            <p class="text-xs text-gray-500 mt-1">Username ini akan digunakan pada link QRIS Pakasir.</p>
-                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-400 mb-1">Harga 3 Hari</label>
@@ -471,14 +466,12 @@
 
         // --- Payment Settings ---
         function loadPaymentSettings() {
-            const slug = localStorage.getItem('melolo_pakasir_slug') || 'dedi-hutapea';
             const price3 = localStorage.getItem('melolo_price_3') || '1500';
             const price7 = localStorage.getItem('melolo_price_7') || '3000';
             const price10 = localStorage.getItem('melolo_price_10') || '4000';
             const price15 = localStorage.getItem('melolo_price_15') || '5000';
             const price30 = localStorage.getItem('melolo_price_30') || '10000';
 
-            document.getElementById('pakasirSlug').value = slug;
             document.getElementById('price3').value = price3;
             document.getElementById('price7').value = price7;
             document.getElementById('price10').value = price10;
@@ -487,19 +480,12 @@
         }
 
         function savePaymentSettings() {
-            const slug = document.getElementById('pakasirSlug').value.trim();
             const price3 = document.getElementById('price3').value;
             const price7 = document.getElementById('price7').value;
             const price10 = document.getElementById('price10').value;
             const price15 = document.getElementById('price15').value;
             const price30 = document.getElementById('price30').value;
 
-            if (!slug) {
-                alert('Username / Slug Pakasir tidak boleh kosong!');
-                return;
-            }
-
-            localStorage.setItem('melolo_pakasir_slug', slug);
             localStorage.setItem('melolo_price_3', price3);
             localStorage.setItem('melolo_price_7', price7);
             localStorage.setItem('melolo_price_10', price10);
