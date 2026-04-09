@@ -144,17 +144,25 @@
                             <input type="text" id="pakasirSlug" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="Contoh: dedi-hutapea">
                             <p class="text-xs text-gray-500 mt-1">Username ini akan digunakan pada link QRIS Pakasir.</p>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1">Harga 7 Hari (Rp)</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Harga 3 Hari</label>
+                                <input type="number" id="price3" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="1500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Harga 7 Hari</label>
                                 <input type="number" id="price7" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="3000">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1">Harga 15 Hari (Rp)</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Harga 10 Hari</label>
+                                <input type="number" id="price10" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="4000">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Harga 15 Hari</label>
                                 <input type="number" id="price15" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="5000">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-400 mb-1">Harga 30 Hari (Rp)</label>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Harga 30 Hari</label>
                                 <input type="number" id="price30" class="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-brand-red" placeholder="10000">
                             </div>
                         </div>
@@ -464,19 +472,25 @@
         // --- Payment Settings ---
         function loadPaymentSettings() {
             const slug = localStorage.getItem('melolo_pakasir_slug') || 'dedi-hutapea';
+            const price3 = localStorage.getItem('melolo_price_3') || '1500';
             const price7 = localStorage.getItem('melolo_price_7') || '3000';
+            const price10 = localStorage.getItem('melolo_price_10') || '4000';
             const price15 = localStorage.getItem('melolo_price_15') || '5000';
             const price30 = localStorage.getItem('melolo_price_30') || '10000';
 
             document.getElementById('pakasirSlug').value = slug;
+            document.getElementById('price3').value = price3;
             document.getElementById('price7').value = price7;
+            document.getElementById('price10').value = price10;
             document.getElementById('price15').value = price15;
             document.getElementById('price30').value = price30;
         }
 
         function savePaymentSettings() {
             const slug = document.getElementById('pakasirSlug').value.trim();
+            const price3 = document.getElementById('price3').value;
             const price7 = document.getElementById('price7').value;
+            const price10 = document.getElementById('price10').value;
             const price15 = document.getElementById('price15').value;
             const price30 = document.getElementById('price30').value;
 
@@ -486,7 +500,9 @@
             }
 
             localStorage.setItem('melolo_pakasir_slug', slug);
+            localStorage.setItem('melolo_price_3', price3);
             localStorage.setItem('melolo_price_7', price7);
+            localStorage.setItem('melolo_price_10', price10);
             localStorage.setItem('melolo_price_15', price15);
             localStorage.setItem('melolo_price_30', price30);
 

@@ -301,33 +301,56 @@
             
             <!-- Pricing View -->
             <div id="pricingView" class="p-6 overflow-y-auto custom-scrollbar">
-                <div class="space-y-4">
+                <div class="space-y-3">
+                    <!-- Paket 3 Hari -->
+                    <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex justify-between items-center hover:border-brand-red/50 transition-colors">
+                        <div>
+                            <h4 class="text-white font-bold text-lg">3 Hari</h4>
+                            <p class="text-gray-400 text-xs mb-1">Limit 30 Nonton</p>
+                            <p id="displayPrice3" class="text-brand-red font-bold">Rp 1.500</p>
+                        </div>
+                        <button id="btnPrice3" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm shadow-lg shadow-red-500/20">Upgrade</button>
+                    </div>
+
                     <!-- Paket 7 Hari -->
-                    <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex justify-between items-center">
+                    <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex justify-between items-center hover:border-brand-red/50 transition-colors">
                         <div>
                             <h4 class="text-white font-bold text-lg">7 Hari</h4>
+                            <p class="text-gray-400 text-xs mb-1">Limit 70 Nonton</p>
                             <p id="displayPrice7" class="text-brand-red font-bold">Rp 3.000</p>
                         </div>
-                        <button id="btnPrice7" onclick="processPayment('7 Hari', 3000)" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm">Langganan</button>
+                        <button id="btnPrice7" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm shadow-lg shadow-red-500/20">Upgrade</button>
                     </div>
                     
+                    <!-- Paket 10 Hari -->
+                    <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex justify-between items-center hover:border-brand-red/50 transition-colors">
+                        <div>
+                            <h4 class="text-white font-bold text-lg">10 Hari</h4>
+                            <p class="text-gray-400 text-xs mb-1">Limit 100 Nonton</p>
+                            <p id="displayPrice10" class="text-brand-red font-bold">Rp 4.000</p>
+                        </div>
+                        <button id="btnPrice10" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm shadow-lg shadow-red-500/20">Upgrade</button>
+                    </div>
+
                     <!-- Paket 15 Hari -->
-                    <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex justify-between items-center relative overflow-hidden">
-                        <div class="absolute top-0 right-0 bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">POPULER</div>
+                    <div class="bg-gray-800 border border-brand-red/50 rounded-xl p-4 flex justify-between items-center relative overflow-hidden shadow-[0_0_15px_rgba(229,9,20,0.1)]">
+                        <div class="absolute top-0 right-0 bg-brand-red text-white text-[10px] font-bold px-3 py-0.5 rounded-bl-lg">POPULER</div>
                         <div>
                             <h4 class="text-white font-bold text-lg">15 Hari</h4>
-                            <p id="displayPrice15" class="text-brand-red font-bold">Rp 5.000</p>
+                            <p class="text-gray-400 text-xs mb-1">Limit 150 Nonton</p>
+                            <p id="displayPrice15" class="text-brand-red font-bold text-xl">Rp 5.000</p>
                         </div>
-                        <button id="btnPrice15" onclick="processPayment('15 Hari', 5000)" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm">Langganan</button>
+                        <button id="btnPrice15" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-5 rounded-lg transition text-sm shadow-lg shadow-red-500/30">Upgrade</button>
                     </div>
                     
                     <!-- Paket 30 Hari -->
-                    <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex justify-between items-center">
+                    <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex justify-between items-center hover:border-brand-red/50 transition-colors">
                         <div>
                             <h4 class="text-white font-bold text-lg">30 Hari</h4>
+                            <p class="text-gray-400 text-xs mb-1">Limit 300 Nonton</p>
                             <p id="displayPrice30" class="text-brand-red font-bold">Rp 10.000</p>
                         </div>
-                        <button id="btnPrice30" onclick="processPayment('30 Hari', 10000)" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm">Langganan</button>
+                        <button id="btnPrice30" class="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm shadow-lg shadow-red-500/20">Upgrade</button>
                     </div>
                 </div>
             </div>
@@ -1062,15 +1085,21 @@
 
         function showUpgradeModal() {
             // Load dynamic prices from localStorage
+            const price3 = parseInt(localStorage.getItem('melolo_price_3')) || 1500;
             const price7 = parseInt(localStorage.getItem('melolo_price_7')) || 3000;
+            const price10 = parseInt(localStorage.getItem('melolo_price_10')) || 4000;
             const price15 = parseInt(localStorage.getItem('melolo_price_15')) || 5000;
             const price30 = parseInt(localStorage.getItem('melolo_price_30')) || 10000;
 
+            document.getElementById('displayPrice3').textContent = `Rp ${price3.toLocaleString('id-ID')}`;
             document.getElementById('displayPrice7').textContent = `Rp ${price7.toLocaleString('id-ID')}`;
+            document.getElementById('displayPrice10').textContent = `Rp ${price10.toLocaleString('id-ID')}`;
             document.getElementById('displayPrice15').textContent = `Rp ${price15.toLocaleString('id-ID')}`;
             document.getElementById('displayPrice30').textContent = `Rp ${price30.toLocaleString('id-ID')}`;
 
+            document.getElementById('btnPrice3').onclick = () => processPayment('3 Hari', price3);
             document.getElementById('btnPrice7').onclick = () => processPayment('7 Hari', price7);
+            document.getElementById('btnPrice10').onclick = () => processPayment('10 Hari', price10);
             document.getElementById('btnPrice15').onclick = () => processPayment('15 Hari', price15);
             document.getElementById('btnPrice30').onclick = () => processPayment('30 Hari', price30);
 
@@ -1228,7 +1257,13 @@
                             if (loadingMsg) loadingMsg.textContent = 'Pembayaran Diterima!';
                             
                             setTimeout(() => {
-                                const addedLimit = packageName.includes('7 Hari') ? 70 : (packageName.includes('15 Hari') ? 150 : 300);
+                                let addedLimit = 0;
+                                if (packageName.includes('3 Hari')) addedLimit = 30;
+                                else if (packageName.includes('7 Hari')) addedLimit = 70;
+                                else if (packageName.includes('10 Hari')) addedLimit = 100;
+                                else if (packageName.includes('15 Hari')) addedLimit = 150;
+                                else if (packageName.includes('30 Hari')) addedLimit = 300;
+
                                 localStorage.setItem('user_limit', parseInt(localStorage.getItem('user_limit') || 0) + addedLimit);
                                 closeLoadingModal();
                                 showSuccessModal(packageName, price, addedLimit);
